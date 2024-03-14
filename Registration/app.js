@@ -1,6 +1,7 @@
 // app.js
 const express = require("express");
 const app = express();
+
 const cors = require("cors");
 const { Pool } = require("pg");
 const bcrypt = require("bcrypt");
@@ -32,7 +33,7 @@ app.use(bodyparser.json())
 app.use(express.json());
 app.use(cors({
   origin:"http://localhost:3000",
-  methods: ("GET" ,"POST"),
+  methods: ("GET" ,"POST", "PUT"),
   credentials: true
 }));
 
@@ -319,16 +320,24 @@ app.post("/reviews/:bookId", async (req, res) => {
     });
   });
 
-  app.put('/update-profile', (req, res) => {
+  app.put('/update-profile',async  (req, res) => {
+    // get user id 
+    const userId = req.session.userId;
+
     const { username, password } = req.body;
-  
-    // Update the user's profile (in-memory array, replace with database update)
-    request.session.username = username;
-    request.session.password= password;
+    try{
+          // Update the user's profile
+     await db.query("UPDATE users SET username = $1, password = $2  WHERE id = $3  VALUES($1, $2, $3,)", [username, password, userId])
+ 
+    req.session.username = username;
+    // console.log(username,"username")
+    req.session.password= password;
     console.log("username",username)
-  
-    res.json({ message: 'Profile updated successfully.' });
-  });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+});
   
 
 const PORT = 3001;

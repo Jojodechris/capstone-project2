@@ -18,7 +18,8 @@
     "express-session": "^1.18.0",
     "path": "^0.12.7",
     "pg": "^8.11.3",
-    "req": "^0.1.4"
+    "req": "^0.1.4",
+    "request": "^2.88.2"
   },
   "devDependencies": {
     "nodemon": "^3.0.3"
