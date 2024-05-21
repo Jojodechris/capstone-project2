@@ -20,7 +20,8 @@ RightBook4u is an app that allow the user to find,see and order books .The app a
 
 # Home page
 ![IMG_0506](https://github.com/Jojodechris/capstone-project2/assets/123711200/ff7295da-c610-435a-a5ba-59194a94e041)
+![IMG_0511 (1)](https://github.com/Jojodechris/capstone-project2/assets/123711200/82da2929-4d4a-4319-a1f0-e935517826bc)
 
-#
+
 ![IMG_0513](https://github.com/Jojodechris/capstone-project2/assets/123711200/703e80b0-c126-4446-8c51-a7cd69eb3385)
 
