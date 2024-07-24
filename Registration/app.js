@@ -131,7 +131,7 @@ app.post("/login", async (request, response) => {
         request.session.username = result.rows[0].username;
         console.log(result)
         request.session.userId = result.rows[0].id;
-        console.log(request.session.userId)
+        console.log(request.session.userId,"user id")
         console.log(request.session.username)
         response.json({ success: true, message: "Login successful", user:result.rows[0] });
       } else {
@@ -269,22 +269,21 @@ app.get("/likedBooks", async (req, res) => {
   //   console.log("Method not allowed");
   // }
 
-
+app.post("/reviews/:bookId", async (request, res) => {
+    const { bookId,newReview } = request.body;
+    const userId = request.session.userId;
+    console.log("userID creator",userId )
   
-
-  
-app.post("/reviews/:bookId", async (req, res) => {
-    const { bookId,newReview } = req.body;
-    const userId = req.session.userId;
     const {content,rating}=newReview;
     console.log("content",content + "book",bookId)
     try {
       // Insert rating and comments in the database
       const result= await db.query('INSERT INTO reviewsList(user_id, book_id,rating, content) VALUES($1, $2, $3, $4)', [userId, bookId, rating,content]);
       console.log("result",result)
+      console.log("id",userId)
   
       // Move the SELECT query here
-      const results = await db.query("SELECT * FROM reviewsList WHERE user_id = $1 AND book_id = $2", [req.session.userId, bookId]);
+      const results = await db.query("SELECT * FROM reviewsList WHERE user_id = $1 AND book_id = $2", [request.session.userId, bookId]);
 
       res.json({ success: true, message: "Review added successfully", reviews: results.rows });
       console.log("Review", results.rows);
@@ -294,19 +293,46 @@ app.post("/reviews/:bookId", async (req, res) => {
     }
     })
 
+
     app.get("/reviews/:bookId", async (req, res) => {
-      const { bookId } = req.params; // Access the bookId from the path parameter
-      try{
-      const result = await db.query("SELECT * FROM reviewsList WHERE user_id = $1 AND book_id = $2", [req.session.userId, bookId]);
+      const { bookId } = req.params;
+    
+      try {
+        // 1. Get user ID from session (assuming it's stored there)
+        const userId = req.session.userId;
+    
+        // 2. Query for reviews of the specific book
+        const reviews = await db.query("SELECT * FROM reviewsList WHERE book_id = $1", [bookId]);
+    
+        // 3. Check if any reviews found
+        if (!reviews.rows.length) {
+          return res.json({ success: true, message: "No reviews found for this book", reviews: [] });
+        }
+    
+        // 4. Prepare an array to store user information
+        const userInfos = [];
+    
+        // 5. Loop through each review and fetch user details (separate query)
+        for (const review of reviews.rows) {
+          const userInfo = await db.query("SELECT username FROM users WHERE id = $1", [review.user_id]);
+          userInfos.push(userInfo.rows[0]); // Assuming only one user per ID
+          console.log(userInfo.rows[0], "is the user info");
+        }
+    
+        // 6. Combine review and user data
+        const combinedReviews = reviews.rows.map((review, index) => {
+          return { ...review, ...userInfos[index] };
+        });
+    
+        // 7. Send successful response with combined data
+        res.json({ success: true, message: "Reviews retrieved successfully", reviews: combinedReviews });
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: "Internal server error" });
+      }
+    });
 
-      res.json({ success: true, message: "Review got successfully", reviews: result.rows });
-      console.log("Review", result.rows);
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ success: false, message: "Internal server error" });
-    }
-  })
-
+    
   app.post('/logout', (req, res) => {
     // Clear the session
     req.session.destroy((err) => {
@@ -323,11 +349,11 @@ app.post("/reviews/:bookId", async (req, res) => {
   app.put('/update-profile',async  (req, res) => {
     // get user id 
     const userId = req.session.userId;
-
     const { username, password } = req.body;
     try{
+      const hashedPassword = await bcrypt.hash(password, saltRounds);
           // Update the user's profile
-     await db.query("UPDATE users SET username = $1, password = $2  WHERE id = $3  VALUES($1, $2, $3,)", [username, password, userId])
+     await db.query("UPDATE users SET username = $1 , password = $2  WHERE id = $3", [username, hashedPassword, userId])
  
     req.session.username = username;
     // console.log(username,"username")
