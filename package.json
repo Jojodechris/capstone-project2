@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "react-scripts --openssl-legacy-provider start"
+    "start": "react-scripts --openssl-legacy-provider start",
+    "build": "react-scripts --openssl-legacy-provider build"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^6.5.1",
