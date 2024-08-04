@@ -1,7 +1,4 @@
 {
-  "name": "capstoneproject2",
-  "version": "0.0.0",
-  "private": true,
   "scripts": {
     "start": "react-scripts --openssl-legacy-provider start",
     "build": "react-scripts --openssl-legacy-provider build"
@@ -30,12 +27,15 @@
     "react-dom": "^18.2.0",
     "react-rating-stars-component": "^2.2.0",
     "react-router-dom": "^6.22.1",
-    "react-scripts": "^3.4.4",
+    "react-scripts": "^5.0.1",
     "react-strap": "^0.0.1",
     "reactstrap": "^9.2.2",
     "request": "^2.88.2",
     "styled-components": "^6.1.8",
     "web-vitals": "^3.5.2"
+  },
+  "devDependencies": {
+    "babel-plugin-react-require": "^4.0.2"
   },
   "browserslist": {
     "production": [
@@ -48,8 +48,5 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  },
-  "devDependencies": {
-    "babel-plugin-react-require": "^4.0.2"
   }
 }

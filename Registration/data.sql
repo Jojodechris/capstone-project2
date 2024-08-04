@@ -8,6 +8,7 @@ CREATE DATABASE  users_books;
 
 DROP TABLE IF EXISTS users;
 
+-- data.sql
 CREATE TABLE users
 (
   id SERIAL PRIMARY KEY,
@@ -30,3 +31,7 @@ CREATE TABLE reviewsList
   rating INTEGER,
   content TEXT
 );
+
+-- SELECT id, user_id, book_id,rating,content,username
+-- FROM reviewsList 
+-- INNER JOIN users ON users.id = reviewsList.user_id;

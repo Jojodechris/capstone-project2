@@ -22,11 +22,11 @@ const nodemon = require("nodemon");
 
 // Database configuration
 const db = new Pool({
-  user: "postgres",
-  password: "postgres",
-  host: "localhost",
-  port: 5432,
-  database: "users_books",
+  user:process.env.DATABASE_USER,
+  password:process.env.DATABASE_PASSWORD,
+  host:process.env.DATABASE_HOST,
+  port:process.env.DATABASE_PORT,
+  database:process.env.DATABASE_NAME,
 });
 
 app.use(bodyparser.json())
