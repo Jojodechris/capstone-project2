@@ -1,52 +1,54 @@
 {
-  "scripts": {
-    "start": "react-scripts --openssl-legacy-provider start",
-    "build": "react-scripts --openssl-legacy-provider build"
-  },
-  "dependencies": {
-    "@fortawesome/fontawesome-svg-core": "^6.5.1",
-    "@fortawesome/free-brands-svg-icons": "^6.5.1",
-    "@fortawesome/free-regular-svg-icons": "^6.5.1",
-    "@fortawesome/free-solid-svg-icons": "^6.5.1",
-    "@fortawesome/react-fontawesome": "^0.2.0",
-    "aws-sdk": "^2.1550.0",
-    "axios": "^1.6.7",
-    "bcrypt": "^5.1.1",
-    "bootstrap": "^3.4.1",
-    "bootstrap-icons": "^1.11.3",
-    "cookie-parser": "~1.4.4",
-    "debug": "~2.6.9",
-    "express": "^4.18.2",
-    "jsonwebtoken": "^9.0.2",
-    "mdb-react-ui-kit": "^7.2.0",
-    "mock-aws-s3": "^4.0.2",
-    "nock": "^13.5.1",
-    "path": "^0.12.7",
-    "pg": "^8.11.3",
-    "react-bootstrap": "^2.10.0",
-    "react-dom": "^18.2.0",
-    "react-rating-stars-component": "^2.2.0",
-    "react-router-dom": "^6.22.1",
-    "react-scripts": "^5.0.1",
-    "react-strap": "^0.0.1",
-    "reactstrap": "^9.2.2",
-    "request": "^2.88.2",
-    "styled-components": "^6.1.8",
-    "web-vitals": "^3.5.2"
-  },
-  "devDependencies": {
-    "babel-plugin-react-require": "^4.0.2"
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
+    "scripts": {
+      "start": "react-scripts --openssl-legacy-provider start",
+      "build": "react-scripts --openssl-legacy-provider build"
+    },
+    "dependencies": {
+      "@fortawesome/fontawesome-svg-core": "^6.5.1",
+      "@fortawesome/free-brands-svg-icons": "^6.5.1",
+      "@fortawesome/free-regular-svg-icons": "^6.5.1",
+      "@fortawesome/free-solid-svg-icons": "^6.5.1",
+      "@fortawesome/react-fontawesome": "^0.2.0",
+      "aws-sdk": "^2.1550.0",
+      "axios": "^1.6.7",
+      "bcrypt": "^5.1.1",
+      "bootstrap": "^3.4.1",
+      "bootstrap-icons": "^1.11.3",
+      "cookie-parser": "~1.4.4",
+      "debug": "~2.6.9",
+      "express": "^4.18.2",
+      "jsonwebtoken": "^9.0.2",
+      "mdb-react-ui-kit": "^7.2.0",
+      "mock-aws-s3": "^4.0.2",
+      "nock": "^13.5.1",
+      "path": "^0.12.7",
+      "pg": "^8.11.3",
+      "react-bootstrap": "^2.10.0",
+      "react-dom": "^18.2.0",
+      "react-rating-stars-component": "^2.2.0",
+      "react-router-dom": "^6.22.1",
+      "react-scripts": "^5.0.1",
+      "react-strap": "^0.0.1",
+      "reactstrap": "^9.2.2",
+      "request": "^2.88.2",
+      "styled-components": "^6.1.8",
+      "web-vitals": "^3.5.2"
+    },
+    "devDependencies": {
+      "babel-plugin-react-require": "^4.0.2"
+    },
+    "browserslist": {
+      "production": [
+        ">0.2%",
+        "not dead",
+        "not op_mini all"
+      ],
+      "development": [
+        "last 1 chrome version",
+        "last 1 firefox version",
+        "last 1 safari version"
+      ]
+    }
   }
-}
+  
+  
