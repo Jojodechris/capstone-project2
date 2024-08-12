@@ -1,29 +1,22 @@
 {
   "files": {
-    "main.css": "/static/css/main.4cdcf3d9.chunk.css",
-    "main.js": "/static/js/main.d217b178.chunk.js",
-    "main.js.map": "/static/js/main.d217b178.chunk.js.map",
-    "runtime-main.js": "/static/js/runtime-main.e0d83e75.js",
-    "runtime-main.js.map": "/static/js/runtime-main.e0d83e75.js.map",
-    "static/css/2.04ebd525.chunk.css": "/static/css/2.04ebd525.chunk.css",
-    "static/js/2.8d67d232.chunk.js": "/static/js/2.8d67d232.chunk.js",
-    "static/js/2.8d67d232.chunk.js.map": "/static/js/2.8d67d232.chunk.js.map",
-    "static/js/3.6d3216d1.chunk.js": "/static/js/3.6d3216d1.chunk.js",
-    "static/js/3.6d3216d1.chunk.js.map": "/static/js/3.6d3216d1.chunk.js.map",
+    "main.css": "/static/css/main.e173bd6d.css",
+    "main.js": "/static/js/main.d9e5815e.js",
+    "static/js/488.4d201857.chunk.js": "/static/js/488.4d201857.chunk.js",
+    "static/media/bootstrap-icons.woff?": "/static/media/bootstrap-icons.39795c0b4513de014cf8.woff",
+    "static/media/bootstrap-icons.woff2?": "/static/media/bootstrap-icons.b7bcc075b395c14ce8c2.woff2",
+    "static/media/glyphicons-halflings-regular.svg": "/static/media/glyphicons-halflings-regular.060b2710bdbbe3dfe48b.svg",
+    "static/media/glyphicons-halflings-regular.ttf": "/static/media/glyphicons-halflings-regular.4692b9ec53fd5972caa2.ttf",
+    "static/media/glyphicons-halflings-regular.woff": "/static/media/glyphicons-halflings-regular.82b1212e45a2bc35dd73.woff",
+    "static/media/glyphicons-halflings-regular.eot": "/static/media/glyphicons-halflings-regular.5be1347c682810f199c7.eot",
+    "static/media/glyphicons-halflings-regular.woff2": "/static/media/glyphicons-halflings-regular.be810be3a3e14c682a25.woff2",
     "index.html": "/index.html",
-    "precache-manifest.bdceda27e07a8f3c2a2ea357eb10f2b9.js": "/precache-manifest.bdceda27e07a8f3c2a2ea357eb10f2b9.js",
-    "service-worker.js": "/service-worker.js",
-    "static/css/2.04ebd525.chunk.css.map": "/static/css/2.04ebd525.chunk.css.map",
-    "static/css/main.4cdcf3d9.chunk.css.map": "/static/css/main.4cdcf3d9.chunk.css.map",
-    "static/js/2.8d67d232.chunk.js.LICENSE.txt": "/static/js/2.8d67d232.chunk.js.LICENSE.txt",
-    "static/media/bootstrap-icons.css": "/static/media/bootstrap-icons.cc1e5eda.woff2",
-    "static/media/bootstrap.min.css": "/static/media/glyphicons-halflings-regular.fa277232.woff"
+    "main.e173bd6d.css.map": "/static/css/main.e173bd6d.css.map",
+    "main.d9e5815e.js.map": "/static/js/main.d9e5815e.js.map",
+    "488.4d201857.chunk.js.map": "/static/js/488.4d201857.chunk.js.map"
   },
   "entrypoints": [
-    "static/js/runtime-main.e0d83e75.js",
-    "static/css/2.04ebd525.chunk.css",
-    "static/js/2.8d67d232.chunk.js",
-    "static/css/main.4cdcf3d9.chunk.css",
-    "static/js/main.d217b178.chunk.js"
+    "static/css/main.e173bd6d.css",
+    "static/js/main.d9e5815e.js"
   ]
 }
