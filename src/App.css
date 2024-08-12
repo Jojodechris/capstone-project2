@@ -1,0 +1,182 @@
+/* App.css */
+
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #dc3232;
+  }
+  
+  header {
+    background-color: #858d96;
+    color: white;
+    padding: 1em;
+    text-align: center;
+  }
+
+
+  .bigcontainer{
+    /* background-color: #dc3232; */
+    max-height: 100%;
+    background-image:url(https://images.contentstack.io/v3/assets/bltf6a42d9e46f07d48/blt8ae88c31eeeed222/62d03aaf1b2225113da05acd/brickwork-covers-top.jpg);
+
+
+  }
+
+
+  .no-results{
+    background-image:url(https://images.contentstack.io/v3/assets/bltf6a42d9e46f07d48/blt8ae88c31eeeed222/62d03aaf1b2225113da05acd/brickwork-covers-top.jpg);
+    margin-top:100px ;
+    height: 50vh;
+  }
+
+
+
+  i{
+    cursor: pointer;
+    width:  48px;
+    height: 48px;
+  }
+
+  .book-card {
+    border: 1px solid #ddd;
+    padding: 2em;
+    margin: 2em;
+    max-width: 300px;
+    max-height: 500px;
+    background-color: white;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+  }
+
+  #like{
+    color: #dc3232;
+    font-size: 3.5rem;
+  }
+
+  #unlike{
+    font-size: 3.5rem;
+  }
+
+  .greet{
+    text-align: center;
+  }
+
+  img {
+    vertical-align: top;
+    max-width: 127px;
+    max-height: 127px;
+    transition: all 0.3s ease;
+  }
+
+  img:hover{
+    transform: scale(1.5);
+  }
+
+  .sideG{ 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 10vh; /* 100% of the viewport height */
+  }
+
+  .random{
+    text-align: center;
+
+
+  }
+  .list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .Search {
+    text-align: center;
+    margin: 1em;
+  }
+  
+  .Search form {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+
+  .options{
+    color: #dc3232;
+  }
+  
+  .Search input,
+  .Search button,
+  .Search select {
+    margin: 0.5em;
+    padding: 0.5em;
+  }
+
+
+  .star-rating {
+    display: inline-block;
+    font-size: 0;
+}
+
+.star-rating input {
+    display: none;
+}
+
+.star-rating label {
+    cursor: pointer;
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    text-align: center;
+    line-height: 30px;
+    font-size: 20px;
+    color: #ccc;
+    transition: color 0.9s;
+}
+
+.star-rating input:checked ~ label {
+    color: rgb(255, 217, 0);
+}
+  
+  /* Add more styles as needed */
+  
+
+
+
+
+  .footer {
+    background-color: #29323c;
+    color: #fff;
+    padding: 2rem 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  
+  .footer p {
+    font-size: 0.8rem;
+    margin: 0;
+  }
+  
+  .footer ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+  }
+  
+  .footer li {
+    margin-right: 1rem;
+  }
+  
+  .footer a {
+    color: inherit;
+    text-decoration: none;
+  }
+  
+  .footer a:hover {
+    color: #f0545e;
+  }
+  

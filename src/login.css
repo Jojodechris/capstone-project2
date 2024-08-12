@@ -1,0 +1,120 @@
+.form-container {
+    display: flex;
+    /* flex-direction: column; */
+    align-items: center;
+    justify-content: center;
+    /* min-height: 10vh; */
+    background-color: #f0f2f5;
+    height: 100vh;
+    width:100vh;
+    background-image:url(https://www.economist.com/cdn-cgi/image/width=1424,quality=80,format=auto/content-assets/images/20231209_CUD001.jpg);
+    opacity: 0.9;
+    margin-left: 340px;
+    margin-right: 340px;
+    outline: solid 1px black;
+    display: flex;
+    justify-content: center;
+    align-items: center
+
+    
+  }
+
+  .about-info{
+    background-color: white;
+
+  }
+
+
+  .invalid-feedback{
+    color: red;
+  }
+
+
+
+
+  .form {
+    padding: 20px;
+    border-radius: 5px;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 40%;
+    background-image:url(https://www.economist.com/cdn-cgi/image/width=1424,quality=80,format=auto/content-assets/images/20231209_CUD001.jpg);
+    opacity: 2.9;
+    
+    
+  }
+  
+  .form-header {
+    text-align: center;
+    font-size: 24px;
+    /* margin-bottom: 20px; */
+  }
+
+  html, body {
+    height: 100%;
+  }
+
+  .background{
+    width: 100%;
+    height: 100%;
+
+  }
+
+  /* .footer{
+    background-image:url(https://www.economist.com/cdn-cgi/image/width=1424,quality=80,format=auto/content-assets/images/20231209_CUD001.jpg);
+    height: 100vh;
+  } */
+
+
+  /* footer{
+    background-image:url(https://s26162.pcdn.co/wp-content/uploads/sites/2/2022/05/Best-Reviewed-Books.jpeg)
+  } */
+
+  /* img{
+    min-width: 100%;
+   footer
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 50%;
+    /* padding: 10px; */
+
+  
+  .form-group {
+    
+    /* margin-bottom: 15px; */
+  }
+  
+  .form-label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+  }
+  
+  .form-input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+  }
+  
+  .form-button {
+    background-color: #3498db;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+  }
+  
+  .form-button:hover {
+    background-color: #2980b9;
+  }
+
+  body{
+    height: 90%;
+    background-color: aquamarine;
+
+  }
+  
