@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import {useEffect} from  'react'
 import "./login.css";
 import LogsignHeader from './LogsignHeader';
+import { API_BASE_URL } from './Api';
 
 
 Axios.defaults.withCredentials=true;
@@ -17,7 +18,7 @@ function LoginForm() {
     e.preventDefault();
 
     try {
-      const response = await Axios.post("https://capstone-project2-pt29.onrender.com/login", {
+      const response = await Axios.post(`${API_BASE_URL}/login`, {
         username: username,
         password: password
       });
@@ -41,7 +42,7 @@ function LoginForm() {
   };
 
   useEffect(()=>{
-    Axios.get("https://capstone-project2-pt29.onrender.com/login").then ((response)=>{
+    Axios.get(`${API_BASE_URL}/login`).then ((response)=>{
       console.log(response)
   })
   },[])

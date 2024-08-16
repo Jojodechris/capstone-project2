@@ -6,6 +6,10 @@ import React, { useState,useEffect } from "react";
 import axios from "axios";
 import HomeNav from "./HomeNav";
 import "./App.css";
+import { API_BASE_URL } from "./Api";
+
+
+
 
 
 function CreateReview({id}) {
@@ -46,7 +50,7 @@ const [showReviews, setShowReviews] = useState(false);
 
     const fetchreviews = async () => {
       try {
-        const allreviews = await fetch(`https://capstone-project2-pt29.onrender.com/reviews/${id}`, {
+        const allreviews = await fetch(`${API_BASE_URL}/reviews/${id}`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -79,7 +83,7 @@ const [showReviews, setShowReviews] = useState(false);
     // console.log("id",id)
     // console.log("submitted")
     try {
-      let response = await fetch(`https://capstone-project2-pt29.onrender.com/reviews/${id}`, {
+      let response = await fetch(`${API_BASE_URL}/reviews/${id}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

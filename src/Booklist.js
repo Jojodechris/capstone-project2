@@ -1,8 +1,10 @@
 // front-end booklist.js
 
 import React, { useState, useEffect } from "react";
+import { API_BASE_URL } from "./Api";
 import { useAppContext } from "./appContext";
 import Bookcard from "./Bookcard";
+// import { API_BASE_URL } from "./Api";
 
 const Booklist = ({ books }) => {
   console.log("Books in Booklist:", books);
@@ -25,7 +27,7 @@ const Booklist = ({ books }) => {
   useEffect(() => {
     const fetchFavorited = async () => {
       try {
-        const response = await fetch("https://capstone-project2-pt29.onrender.com/displayfavorites", {
+        const response = await fetch(`${API_BASE_URL}/displayfavorites`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -59,7 +61,7 @@ const Booklist = ({ books }) => {
 
     const userId=localStorage.getItem('userId');
     try {
-      const response = await fetch("https://capstone-project2-pt29.onrender.com/favorites", {
+      const response = await fetch(`${API_BASE_URL}/favorites`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

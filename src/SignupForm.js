@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import "./login.css";
 import LogsignHeader from './LogsignHeader';
+import { API_BASE_URL } from './Api';
 
 function SignupForm() {
   const navigate = useNavigate();
@@ -27,7 +28,7 @@ function SignupForm() {
     }
 
     try {
-      const response = await Axios.post('https://capstone-project2-pt29.onrender.com/signup', formData);
+      const response = await Axios.post("/signup", formData);
       console.log(response);
       if (response.data.message) {
         // send a feedback to the user to let him know he successfully signed up

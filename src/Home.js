@@ -6,6 +6,7 @@ import Books from "./Books";
 import Axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Footer from "./footer";
+import { API_BASE_URL} from './Api';
 
 function Home() {
     const [name, setName] = useState("");
@@ -13,7 +14,7 @@ function Home() {
     const navigate = useNavigate();
 
     useEffect(() => {
-        Axios.get(`https://capstone-project2-pt29.onrender.com`)
+        Axios.get("/")
             .then(response => {
                 console.log(response.data)
                 if (response.data.valid) {
@@ -24,7 +25,7 @@ function Home() {
 
                     
                 } else {
-                    navigate('/signup');
+                    navigate("/signup");
                 }
             }) 
             .catch(err => console.log(err));

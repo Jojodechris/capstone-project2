@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, {useState, useEffect } from "react";
+import { API_BASE_URL} from './Api';
 import FavoriteBookCard from "./FavoriteBookCard";
 // import axios from axios;
 
@@ -8,7 +9,7 @@ const Favorites = () => {
   useEffect(() => {
     const fetchFavorites = async () => {
       try {
-        const response = await fetch("https://capstone-project2-pt29.onrender.com /displayfavorites", {
+        const response = await fetch(`${API_BASE_URL}displayfavorites`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",

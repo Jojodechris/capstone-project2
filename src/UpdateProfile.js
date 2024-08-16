@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import "./login.css";
 import LogsignHeader from './LogsignHeader';
+import { API_BASE_URL } from './Api';
 
 function UpdateProfileForm() {
   const navigate = useNavigate();
@@ -17,7 +18,7 @@ const handleUpdateProfile = async (e) => {
     e.preventDefault();
   
     try {
-      const response = await Axios.put('https://capstone-project2-pt29.onrender.com/update-profile', {
+      const response = await Axios.put(`${API_BASE_URL}/update-profile`, {
         username: username, 
         password: password
       }, {

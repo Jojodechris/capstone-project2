@@ -25,15 +25,15 @@ const db = new Pool({
   password: process.env.DATABASE_PASSWORD,
   host: process.env.DATABASE_HOST,
   port: process.env.DATABASE_PORT,
-  database: process.env.DATABASE_NAME,
+  database: process.env.DATABASE_NAME
 });
 
 app.use(bodyparser.json());
 app.use(express.json());
 app.use(
   cors({
-    AccessControlAllowOrigin: ["http://localhost:3000","localhost:3001","https://capstone-project2-pt29.onrender.com/"],
-    origin: "http://localhost:3000",
+    AccessControlAllowOrigin: ["http://localhost:3000","http://localhost:3001","https://capstone-project2-pt29.onrender.com/"],
+    origin: "http://localhost:3001",
     methods: ("GET", "POST", "PUT", "DELETE"),
     credentials: true
   })

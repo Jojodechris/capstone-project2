@@ -1,4 +1,5 @@
 import React from 'react';
+import { API_BASE_URL } from './Api';
 
 
 const Logout = () => {
@@ -6,7 +7,7 @@ const Logout = () => {
       try {
       
         // Make a request to the server to clear the session
-        const response = await fetch("https://capstone-project2-pt29.onrender.com/logout", {
+        const response = await fetch(`${API_BASE_URL}/logout`, {
           method: 'POST',
           credentials: 'include', 
         });

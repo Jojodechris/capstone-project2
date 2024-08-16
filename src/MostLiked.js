@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import MostLikedCard from "./MostLikedCard";
+import { API_BASE_URL } from "./Api";
 // import axios from axios;
 
 
@@ -30,7 +31,7 @@ const MostLiked = () => {
   useEffect(() => {
     const fetchMostFavorites = async () => {
       try {
-        const response = await fetch("https://capstone-project2-pt29.onrender.com/likedBooks", {
+        const response = await fetch(`${API_BASE_URL}/likedBooks`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
