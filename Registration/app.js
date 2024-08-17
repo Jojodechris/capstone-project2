@@ -64,15 +64,24 @@ app.use(
 
 app.post("/signup", async (request, response) => {
   const { username, password } = request.body;
-  console.log(username + password);
-  request.session.user = request.body.username;
+  console.log("Username:", username); // Log username separately
+
   try {
     const hashedPassword = await bcrypt.hash(password, saltRounds);
     const { data, error } = await supabase
-    .from('users')
-    .insert([{ username, password: hashedPassword }]);
-    if (error) throw error;
+      .from('users')
+      .insert([{ username, password: hashedPassword }]);
+    
+    if (error) {
+      // Check for specific errors (e.g., username conflict)
+      if (error.code === '23505') {
+        response.status(400).json({ success: false, message: "Username already exists" });
+      } else {
+        throw error; // Re-throw other errors for generic handling
+      }
+    }
 
+    request.session.user = request.body.username;
     response.json({ success: true, message: "User signed up successfully" });
   } catch (error) {
     console.error(error);
