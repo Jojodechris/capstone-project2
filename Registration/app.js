@@ -18,6 +18,7 @@ const cookieParser = require("cookie-parser");
 // create session to keep user log in
 const session = require("express-session");
 const nodemon = require("nodemon");
+const supabase = require('./supabaseClient');
 
 // Database configuration
 const db = new Pool({
@@ -67,10 +68,10 @@ app.post("/signup", async (request, response) => {
   request.session.user = request.body.username;
   try {
     const hashedPassword = await bcrypt.hash(password, saltRounds);
-    await db.query(`INSERT INTO users (username, password) VALUES ($1, $2)`, [
-      username,
-      hashedPassword,
-    ]);
+    const { data, error } = await supabase
+    .from('users')
+    .insert([{ username, password: hashedPassword }]);
+    if (error) throw error;
 
     response.json({ success: true, message: "User signed up successfully" });
   } catch (error) {
@@ -80,6 +81,19 @@ app.post("/signup", async (request, response) => {
       .json({ success: false, message: "Internal server error" });
   }
 });
+    // await db.query(`INSERT INTO users (username, password) VALUES ($1, $2)`, [
+    //   username,
+    //   hashedPassword,
+    // ]);
+
+//     response.json({ success: true, message: "User signed up successfully" });
+//   } catch (error) {
+//     console.error(error);
+//     response
+//       .status(500)
+//       .json({ success: false, message: "Internal server error" });
+//   }
+// });
 
 // app.post("/reviews", async (req, response) => {
 //   const userId = req.session.userId;
