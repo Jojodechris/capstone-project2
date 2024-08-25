@@ -29,7 +29,7 @@ function SignupForm() {
     }
 
     try {
-      const response = await Axios.post("/signup", formData);
+      const response = await Axios.post(`${API_BASE_URL}/signup`, formData);
       console.log(response);
       if (response.data.message) {
         // send a feedback to the user to let him know he successfully signed up

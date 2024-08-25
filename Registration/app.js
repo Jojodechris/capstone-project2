@@ -68,28 +68,44 @@ app.post("/signup", async (request, response) => {
 
   try {
     const hashedPassword = await bcrypt.hash(password, saltRounds);
+    
     const { data, error } = await supabase
       .from('users')
       .insert([{ username, password: hashedPassword }]);
     
-    if (error) {
-      // Check for specific errors (e.g., username conflict)
-      if (error.code === '23505') {
-        response.status(400).json({ success: false, message: "Username already exists" });
-      } else {
-        throw error; // Re-throw other errors for generic handling
-      }
+    if (data) {  // Check if data exists
+      request.session.user = username;  // Assign the session
+      response.json({ success: true, message: "User signed up successfully" });
+    } else {
+      // Handle potential insertion errors
+      response.status(400).json({ success: false, message: error.message });
     }
-
-    request.session.user = request.body.username;
-    response.json({ success: true, message: "User signed up successfully" });
   } catch (error) {
-    console.error(error);
     response
       .status(500)
       .json({ success: false, message: "Internal server error" });
   }
 });
+
+    
+    // if (error) {
+    //   // Check for specific errors (e.g., username conflict)
+    //   if (error.code === '23505') {
+    //     response.status(400).json({ success: false, message: "Username already exists" });
+    //   } else {
+    //     throw error; // Re-throw other errors for generic handling
+    //   }
+    // }
+
+//     request.session.user = request.body.username;
+//     response.json({ success: true, message: "User signed up successfully" });
+//   } catch (error) {
+//     console.error(error);
+//     response
+//       .status(500)
+//       .json({ success: false, message: "Internal server error" });
+//   }
+// });
     // await db.query(`INSERT INTO users (username, password) VALUES ($1, $2)`, [
     //   username,
     //   hashedPassword,
