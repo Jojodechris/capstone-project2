@@ -34,7 +34,7 @@ app.use(express.json());
 app.use(
   cors({
     AccessControlAllowOrigin: ["http://localhost:3000","http://localhost:3001","https://capstone-project2-pt29.onrender.com/"],
-    origin: "http://localhost:3001",
+    origin: "https://front-end-4ytj.onrender.com",
     methods: ("GET", "POST", "PUT", "DELETE"),
     credentials: true
   })
