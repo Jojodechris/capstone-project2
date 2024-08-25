@@ -78,7 +78,7 @@ app.post("/signup", async (request, response) => {
       response.json({ success: true, message: "User signed up successfully" });
     } else {
       // Handle potential insertion errors
-      response.status(400).json({ success: false, message: error.message });
+      response.status(400).json({ success: false, message: error});
     }
   } catch (error) {
     response
