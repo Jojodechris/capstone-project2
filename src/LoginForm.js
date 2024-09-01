@@ -26,7 +26,7 @@ function LoginForm() {
       // Check the response for successful login (customize according to your API)
       if (response.data.success) {
         alert(` successful!`)
-        localStorage.setItem('userId', response.data.user.id);
+        // localStorage.setItem('userId', response.data.user.id);
         console.log("response",response);
         // Handle successful login, e.g., redirect to another page
         console.log('Login successful');
