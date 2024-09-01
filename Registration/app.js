@@ -179,7 +179,7 @@ app.post("/login", async (request, response) => {
     const passwordMatch = await bcrypt.compare(password, user.password);
 
     if (passwordMatch) {
-      request.session.user = username;
+      request.session.username = username;
       response.json({ success: true, message: "Login successful" });
     } else {
       response.status(401).json({ success: false, message: "Invalid credentials" });
