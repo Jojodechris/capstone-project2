@@ -71,7 +71,8 @@ app.post("/signup", async (request, response) => {
     
     const { data, error } = await supabase
       .from('users')
-      .insert([{ username, password: hashedPassword }]);
+      .insert([{ username, password: hashedPassword }])
+      .select();
 
       console.log('ERROR',error)
       console.error("error",error)
