@@ -70,11 +70,11 @@ app.post("/signup", async (request, response) => {
     const hashedPassword = await bcrypt.hash(password, saltRounds);
     
     const { data, error } = await supabase
-    console.log('ERROR',error)
-    console.error("error",error)
       .from('users')
       .insert([{ username, password: hashedPassword }]);
-    
+
+      console.log('ERROR',error)
+      console.error("error",error)
     if (data) {  // Check if data exists
       request.session.user = username;  // Assign the session
       response.json({ success: true, message: "User signed up successfully" });
