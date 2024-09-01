@@ -13,6 +13,7 @@ import MostLiked from "./MostLiked";
 import Logout from "./Logout";
 import NotFound from "./Notfound";
 import UpdateProfileForm from "./UpdateProfile";
+import Mainpage from "./Mainpage";
 
 
 const App = () => {
@@ -26,6 +27,8 @@ const App = () => {
     
 
         <Route exact path = "/" element={<Home/>} />
+
+        <Route exact path = "/app" element={<Mainpage/>} />
 
         <Route exact path = "/signup" element={<SignupForm/>} />
 

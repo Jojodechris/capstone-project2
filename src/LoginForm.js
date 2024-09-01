@@ -30,7 +30,7 @@ function LoginForm() {
         console.log("response",response);
         // Handle successful login, e.g., redirect to another page
         console.log('Login successful');
-        navigate("/")
+        navigate("/app")
         
       } else {
         // Handle unsuccessful login
