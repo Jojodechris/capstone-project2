@@ -157,44 +157,79 @@ app.get("/", (request, response) => {
   }
 });
 
+
 app.post("/login", async (request, response) => {
   const { username, password } = request.body;
+  console.log("Username:", username);
 
   try {
-    const result = await db.query("SELECT * FROM users WHERE username = $1", [
-      username,
-    ]);
+    const { data, error } = await supabase
+      .from('users')
+      .select('password')
+      .eq('username', username)
+      .single(); // Expecting only one user
 
-    if (result.rows.length > 0) {
-      const match = await bcrypt.compare(password, result.rows[0].password);
+    if (error) {
+      response.status(400).json({ success: false, message: "User not found" });
+      return;
+    }
 
-      if (match) {
-        // save user in the session
-        request.session.username = result.rows[0].username;
-        console.log(result);
-        request.session.userId = result.rows[0].id;
-        console.log(request.session.userId, "user id");
-        console.log(request.session.username);
-        response.json({
-          success: true,
-          message: "Login successful",
-          user: result.rows[0],
-        });
-      } else {
-        response
-          .status(401)
-          .json({ success: false, message: "Wrong password" });
-      }
+    const user = data;
+
+    const passwordMatch = await bcrypt.compare(password, user.password);
+
+    if (passwordMatch) {
+      request.session.user = username;
+      response.json({ success: true, message: "Login successful" });
     } else {
-      response.status(404).json({ success: false, message: "User not found" });
+      response.status(401).json({ success: false, message: "Invalid credentials" });
     }
   } catch (error) {
-    console.error(error);
     response
       .status(500)
       .json({ success: false, message: "Internal server error" });
   }
 });
+
+
+// app.post("/login", async (request, response) => {
+//   const { username, password } = request.body;
+
+//   try {
+//     const result = await db.query("SELECT * FROM users WHERE username = $1", [
+//       username,
+//     ]);
+
+//     if (result.rows.length > 0) {
+//       const match = await bcrypt.compare(password, result.rows[0].password);
+
+//       if (match) {
+//         // save user in the session
+//         request.session.username = result.rows[0].username;
+//         console.log(result);
+//         request.session.userId = result.rows[0].id;
+//         console.log(request.session.userId, "user id");
+//         console.log(request.session.username);
+//         response.json({
+//           success: true,
+//           message: "Login successful",
+//           user: result.rows[0],
+//         });
+//       } else {
+//         response
+//           .status(401)
+//           .json({ success: false, message: "Wrong password" });
+//       }
+//     } else {
+//       response.status(404).json({ success: false, message: "User not found" });
+//     }
+//   } catch (error) {
+//     console.error(error);
+//     response
+//       .status(500)
+//       .json({ success: false, message: "Internal server error" });
+//   }
+// });
 // backend
 app.post("/favorites", async (req, res) => {
   const { bookId, isFavorite } = req.body;
