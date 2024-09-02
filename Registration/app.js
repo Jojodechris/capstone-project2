@@ -46,7 +46,7 @@ app.use(bodyparser());
 
 app.use(
   session({
-    key: "userid",
+    key: "user",
     secret: "secret",
     resave: false,
     saveUninitialized: false,
@@ -72,12 +72,12 @@ app.post("/signup", async (request, response) => {
     const { data, error } = await supabase
       .from('users')
       .insert([{ username, password: hashedPassword }])
-      .select();
-
+      .select().single();
       console.log('ERROR',error)
       console.error("error",error)
     if (data) {  // Check if data exists
-      request.session.user = username;  // Assign the session
+      console.log(data)
+      request.session.user = data;  // Assign the session
       response.json({ success: true, message: "User signed up successfully" });
     } else {
       // Handle potential insertion errors
@@ -147,11 +147,11 @@ app.get("/login", (request, response) => {
   }
 });
 
-app.get("/", (request, response) => {
+app.get("/isUserLoggedIn", (request, response) => {
   // localStorage.getItem("favs");
-  if (request.session.username) {
+  if (request.session.user) {
     console.log("heyo");
-    return response.json({ valid: true, username: request.session.username });
+    return response.json({ valid: true, username: request.session.user.username });
   } else {
     return response.json({ valid: false });
   }
@@ -165,7 +165,7 @@ app.post("/login", async (request, response) => {
   try {
     const { data, error } = await supabase
       .from('users')
-      .select('password')
+      .select()
       .eq('username', username)
       .single(); // Expecting only one user
 
@@ -179,7 +179,7 @@ app.post("/login", async (request, response) => {
     const passwordMatch = await bcrypt.compare(password, user.password);
 
     if (passwordMatch) {
-      request.session.username = username;
+      request.session.user = data;
       response.json({ success: true, message: "Login successful" });
     } else {
       response.status(401).json({ success: false, message: "Invalid credentials" });
@@ -233,8 +233,8 @@ app.post("/login", async (request, response) => {
 // backend
 app.post("/favorites", async (req, res) => {
   const { bookId, isFavorite } = req.body;
-  const userId = req.session.userId;
-
+  const userId = req.session.user.id;
+ 
   console.log("req.session", req.params); // Assuming you have a logged-in user in the session
   console.log("added to favorite ");
   console.log("UserID", userId);
@@ -280,7 +280,7 @@ app.post("/favorites", async (req, res) => {
 // }
 
 app.get("/displayfavorites", async (req, res) => {
-  const userId = req.session.userId;
+  const userId = req.session.user.id;
   try {
     const favorite = await db.query(
       "SELECT * FROM favorites WHERE user_id = $1",
@@ -295,7 +295,7 @@ app.get("/displayfavorites", async (req, res) => {
 });
 
 app.get("/likedBooks", async (req, res) => {
-  // const userId = req.session.userId
+  // const userId = req.session.user.id
   try {
     // const {bookId} = req.body;
 
@@ -357,7 +357,7 @@ app.get("/likedBooks", async (req, res) => {
 
 app.post("/reviews/:bookId", async (request, res) => {
   const { bookId, newReview } = request.body;
-  const userId = request.session.userId;
+  const userId = request.session.user.id;
   console.log("userID creator", userId);
 
   const { content, rating } = newReview;
@@ -394,7 +394,7 @@ app.get("/reviews/:bookId", async (req, res) => {
 
   try {
     // 1. Get user ID from session (assuming it's stored there)
-    const userId = req.session.userId;
+    const userId = req.session.user.id;
 
     // 2. Query for reviews of the specific book
     const reviews = await db.query(

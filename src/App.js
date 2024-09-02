@@ -14,7 +14,9 @@ import Logout from "./Logout";
 import NotFound from "./Notfound";
 import UpdateProfileForm from "./UpdateProfile";
 import Mainpage from "./Mainpage";
+import axios from 'axios';
 
+axios.defaults.withCredentials = true
 
 const App = () => {
 
