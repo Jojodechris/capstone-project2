@@ -35,8 +35,8 @@ app.use(bodyparser.json());
 app.use(express.json());
 app.use(
   cors({
-    AccessControlAllowOrigin: ["http://localhost:3000","http://localhost:3001","http://capstone-project2-pt29.onrender.com/","http://front-end-4ytj.onrender.com"],
-    origin:"https://front-end-4ytj.onrender.com",
+    AccessControlAllowOrigin: ["http://localhost:3000","http://localhost:3001","https://capstone-project2-pt29.onrender.com/","https://front-end-4ytj.onrender.com"],
+    origin:"http://localhost:3000",
     methods: ("GET", "POST", "PUT", "DELETE"),
     credentials: true
   })
@@ -51,7 +51,7 @@ app.use(
     key: "user",
     secret: "secret",
     resave: false,
-    saveUninitialized: false,
+    saveUninitialized: true,
     cookie: {
       secure: true,
       expires: 1000 * 60 * 60 * 24,
