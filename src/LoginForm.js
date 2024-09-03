@@ -36,7 +36,7 @@ function LoginForm() {
       }
     } catch (error) {
       console.error(error);
-      setLoginError("Internal server error. Please try again later.");
+      setLoginError("Invalid username or password");
     }
   };
 

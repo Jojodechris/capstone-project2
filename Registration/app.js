@@ -33,8 +33,8 @@ app.use(bodyparser.json());
 app.use(express.json());
 app.use(
   cors({
-    AccessControlAllowOrigin: ["http://localhost:3000","http://localhost:3001","https://capstone-project2-pt29.onrender.com/"],
-    origin: "https://front-end-4ytj.onrender.com",
+    AccessControlAllowOrigin: ["http://localhost:3000","http://localhost:3001","https://capstone-project2-pt29.onrender.com/","https://front-end-4ytj.onrender.com"],
+    origin:"https://front-end-4ytj.onrender.com",
     methods: ("GET", "POST", "PUT", "DELETE"),
     credentials: true
   })
@@ -51,16 +51,13 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: false,
+      secure: true,
       expires: 1000 * 60 * 60 * 24,
     },
   })
 );
 
-// app.get("/",
-//  (req ,res)=>{
-//   res.send("hey")
-//  })
+
 
 app.post("/signup", async (request, response) => {
   const { username, password } = request.body;
