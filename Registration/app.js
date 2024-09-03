@@ -20,6 +20,8 @@ const session = require("express-session");
 const nodemon = require("nodemon");
 const supabase = require('./supabaseClient');
 
+const port = process.env.PORT || 3001
+
 // Database configuration
 const db = new Pool({
   user: process.env.DATABASE_USER,
@@ -33,7 +35,7 @@ app.use(bodyparser.json());
 app.use(express.json());
 app.use(
   cors({
-    AccessControlAllowOrigin: ["http://localhost:3000","http://localhost:3001","https://capstone-project2-pt29.onrender.com/","https://front-end-4ytj.onrender.com"],
+    AccessControlAllowOrigin: ["http://localhost:3000","http://localhost:3001","http://capstone-project2-pt29.onrender.com/","http://front-end-4ytj.onrender.com"],
     origin:"https://front-end-4ytj.onrender.com",
     methods: ("GET", "POST", "PUT", "DELETE"),
     credentials: true
@@ -473,7 +475,7 @@ app.put("/update-profile", async (req, res) => {
   }
 });
 
-const PORT = 3001;
-app.listen(PORT, () => {
-  console.log(`Server started on port ${PORT}`);
+// const PORT = 3001;
+app.listen(port, () => {
+  console.log(`Server started on port ${port}`);
 });
