@@ -31,6 +31,8 @@ const db = new Pool({
   database: process.env.DATABASE_NAME
 });
 
+const isProduction = process.env.NODE_ENV === 'production';
+
 app.use(bodyparser.json());
 app.use(express.json());
 app.use(
@@ -53,6 +55,9 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: {
+      secure: isProduction ? 'true': 'false', // Ensure cookies are only sent over HTTPS in production
+      sameSite: isProduction ? 'strict' : 'lax', // Prevents CSRF attacks; use 'strict' in production
+      httpOnly: true, // Helps prevent XSS attacks by not allowing client-side JavaScript to access the cookie
       secure: true,
       expires: 1000 * 60 * 60 * 24,
     },
