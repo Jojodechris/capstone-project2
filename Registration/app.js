@@ -31,14 +31,14 @@ const db = new Pool({
   database: process.env.DATABASE_NAME
 });
 
-const isProduction = process.env.NODE_ENV === 'production';
+const isProduction = process.env.NODE_ENV === 'development';
 
 app.use(bodyparser.json());
 app.use(express.json());
 app.use(
   cors({
     AccessControlAllowOrigin: ["http://localhost:3000","http://localhost:3001","https://capstone-project2-pt29.onrender.com/","https://front-end-4ytj.onrender.com"],
-    origin:"http://localhost:3000",
+    origin:"https://front-end-4ytj.onrender.com",
     methods: ("GET", "POST", "PUT", "DELETE"),
     credentials: true
   })
@@ -53,12 +53,16 @@ app.use(
     key: "user",
     secret: "secret",
     resave: false,
-    saveUninitialized: false,
+    // what works loacally
+    // saveUninitialized: true,
+    // secure:false,
+    saveUninitialized: true,
     cookie: {
-      secure: isProduction ? 'true': 'false', // Ensure cookies are only sent over HTTPS in production
-      sameSite: isProduction ? 'strict' : 'lax', // Prevents CSRF attacks; use 'strict' in production
-      httpOnly: true, // Helps prevent XSS attacks by not allowing client-side JavaScript to access the cookie
-      secure: true,
+      // secure: false, // Ensure cookies are only sent over HTTPS in production
+      sameSite: strict, // Prevents CSRF attacks; use 'strict' in production
+      // or lax
+      // httpOnly: true, // Helps prevent XSS attacks by not allowing client-side JavaScript to access the cookie
+      secure:true,
       expires: 1000 * 60 * 60 * 24,
     },
   })
