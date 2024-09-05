@@ -52,11 +52,11 @@ app.use(
   session({
     key: "user",
     secret: "secret",
-    resave: true,
+    resave: false,
     // what works loacally
     // saveUninitialized: true,
     // secure:false,
-    saveUninitialized: true,
+    saveUninitialized: false,
     cookie: {
       // secure: false, // Ensure cookies are only sent over HTTPS in production
       // sameSite: strict, // Prevents CSRF attacks; use 'strict' in production
