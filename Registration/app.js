@@ -56,13 +56,13 @@ app.use(
     // what works loacally
     // saveUninitialized: true,
     // secure:false,
-    saveUninitialized: false,
+    saveUninitialized: true,
     cookie: {
       // secure: false, // Ensure cookies are only sent over HTTPS in production
       // sameSite: strict, // Prevents CSRF attacks; use 'strict' in production
       // or lax
       // httpOnly: true, // Helps prevent XSS attacks by not allowing client-side JavaScript to access the cookie
-      secure:false,
+      secure:true,
       expires: 1000 * 60 * 60 * 24,
     },
   })
