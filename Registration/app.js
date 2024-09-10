@@ -159,6 +159,7 @@ app.get("/login", (request, response) => {
 app.get("/isUserLoggedIn", (request, response) => {
   // localStorage.getItem("favs");
   if (request.session.user) {
+    request.session.save()
     console.log("heyo");
     return response.json({ valid: true, username: request.session.user.username });
   } else {
