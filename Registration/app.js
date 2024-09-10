@@ -70,6 +70,7 @@ app.use(
 
 
 
+
 app.post("/signup", async (request, response) => {
   const { username, password } = request.body;
   console.log("Username:", username); // Log username separately
@@ -188,6 +189,7 @@ app.post("/login", async (request, response) => {
 
     if (passwordMatch) {
       request.session.user = data;
+      request.session.save()
       response.json({ success: true, message: "Login successful" });
     } else {
       response.status(401).json({ success: false, message: "Invalid credentials" });
