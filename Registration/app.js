@@ -20,6 +20,17 @@ const session = require("express-session");
 const nodemon = require("nodemon");
 const supabase = require('./supabaseClient');
 
+const RedisStore = require('connect-redis').default;
+const { createClient } = require('redis');
+
+// Redis client configuration (using v4 syntax)
+let redisClient = createClient({
+  url: process.env.REDIS_URL,
+  legacyMode: true  // Needed for compatibility with `connect-redis`
+});
+
+redisClient.connect().catch(console.error);
+
 const port = process.env.PORT || 3001
 
 // Database configuration
@@ -39,6 +50,7 @@ app.use(
   cors({
     AccessControlAllowOrigin: ["http://localhost:3000","http://localhost:3001","https://capstone-project2-pt29.onrender.com/","https://front-end-4ytj.onrender.com"],
     origin:"https://front-end-4ytj.onrender.com",
+    // origin:"http://localhost:3000",
     methods: ("GET", "POST", "PUT", "DELETE"),
     credentials: true
   })
@@ -50,6 +62,7 @@ app.use(bodyparser());
 
 app.use(
   session({
+    store: new RedisStore({ client: redisClient }),
     key: "user",
     secret: "secret",
     resave: false,
@@ -62,7 +75,7 @@ app.use(
       // sameSite: strict, // Prevents CSRF attacks; use 'strict' in production
       // or lax
       // httpOnly: true, // Helps prevent XSS attacks by not allowing client-side JavaScript to access the cookie
-      secure:true,
+      secure:false,
       expires: 1000 * 60 * 60 * 24,
     },
   })
@@ -158,8 +171,8 @@ app.get("/login", (request, response) => {
 
 app.get("/isUserLoggedIn", (request, response) => {
   // localStorage.getItem("favs");
+  console.log("request.session.user",request.session.user)
   if (request.session.user) {
-    request.session.save()
     console.log("heyo");
     return response.json({ valid: true, username: request.session.user.username });
   } else {
@@ -190,6 +203,8 @@ app.post("/login", async (request, response) => {
 
     if (passwordMatch) {
       request.session.user = data;
+      console.log("data",data)
+      console.log("userlogin",request.session.user)
       request.session.save()
       response.json({ success: true, message: "Login successful" });
     } else {
