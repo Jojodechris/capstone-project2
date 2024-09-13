@@ -19,7 +19,7 @@ function Home() {
         console.log(response.data);
         if (response.data.valid) {
           setName(response.data.username);
-          console.log(name);
+          console.log("name",name);
           // setPassword(response.data.password);
         } else {
           navigate("/signup");
