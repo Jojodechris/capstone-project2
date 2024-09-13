@@ -16,7 +16,7 @@ function Home() {
   useEffect(() => {
     Axios.get(`${API_BASE_URL}/isUserLoggedIn`)
       .then((response) => {
-        console.log(response.data);
+        console.log("USER DATA",response.data);
         if (response.data.valid) {
           setName(response.data.username);
           console.log("name",name);
