@@ -18,8 +18,7 @@ const cookieParser = require("cookie-parser");
 // create session to keep user log in
 const session = require("express-session");
 const nodemon = require("nodemon");
-const supabase = require('./supabaseClient');
-
+const supabase = require("./supabaseClient");
 
 // const RedisStore = require('connect-redis')(session);
 // const { createClient } = require('redis');
@@ -32,7 +31,7 @@ const supabase = require('./supabaseClient');
 
 // redisClient.connect().catch(console.error);
 
-const port = process.env.PORT || 3001
+const port = process.env.PORT || 3001;
 
 // Database configuration
 const db = new Pool({
@@ -40,20 +39,25 @@ const db = new Pool({
   password: process.env.DATABASE_PASSWORD,
   host: process.env.DATABASE_HOST,
   port: process.env.DATABASE_PORT,
-  database: process.env.DATABASE_NAME
+  database: process.env.DATABASE_NAME,
 });
 
-const isProduction = process.env.NODE_ENV === 'development';
+const isProduction = process.env.NODE_ENV === "development";
 
 app.use(bodyparser.json());
 app.use(express.json());
 app.use(
   cors({
-    AccessControlAllowOrigin: ["http://localhost:3000","http://localhost:3001","https://capstone-project2-pt29.onrender.com/","https://front-end-4ytj.onrender.com"],
+    AccessControlAllowOrigin: [
+      "http://localhost:3000",
+      "http://localhost:3001",
+      "https://capstone-project2-pt29.onrender.com/",
+      "https://front-end-4ytj.onrender.com",
+    ],
     // origin:"https://front-end-4ytj.onrender.com",
-    origin:"http://localhost:3000",
+    origin: "http://localhost:3000",
     methods: ("GET", "POST", "PUT", "DELETE"),
-    credentials: true
+    credentials: true,
   })
 );
 
@@ -76,14 +80,11 @@ app.use(
       sameSite: "none", // Prevents CSRF attacks; use 'strict' in production
       // or lax
       // httpOnly: true, // Helps prevent XSS attacks by not allowing client-side JavaScript to access the cookie
-      secure:true,
+      secure: true,
       expires: 1000 * 60 * 60 * 24,
     },
   })
 );
-
-
-
 
 app.post("/signup", async (request, response) => {
   const { username, password } = request.body;
@@ -91,20 +92,22 @@ app.post("/signup", async (request, response) => {
 
   try {
     const hashedPassword = await bcrypt.hash(password, saltRounds);
-    
+
     const { data, error } = await supabase
-      .from('users')
+      .from("users")
       .insert([{ username, password: hashedPassword }])
-      .select().single();
-      console.log('ERROR',error)
-      console.error("error",error)
-    if (data) {  // Check if data exists
-      console.log(data)
-      request.session.user = data;  // Assign the session
+      .select()
+      .single();
+    console.log("ERROR", error);
+    console.error("error", error);
+    if (data) {
+      // Check if data exists
+      console.log(data);
+      request.session.user = data; // Assign the session
       response.json({ success: true, message: "User signed up successfully" });
     } else {
       // Handle potential insertion errors
-      response.status(400).json({ success: false, message: error});
+      response.status(400).json({ success: false, message: error });
     }
   } catch (error) {
     response
@@ -113,15 +116,14 @@ app.post("/signup", async (request, response) => {
   }
 });
 
-    
-    // if (error) {
-    //   // Check for specific errors (e.g., username conflict)
-    //   if (error.code === '23505') {
-    //     response.status(400).json({ success: false, message: "Username already exists" });
-    //   } else {
-    //     throw error; // Re-throw other errors for generic handling
-    //   }
-    // }
+// if (error) {
+//   // Check for specific errors (e.g., username conflict)
+//   if (error.code === '23505') {
+//     response.status(400).json({ success: false, message: "Username already exists" });
+//   } else {
+//     throw error; // Re-throw other errors for generic handling
+//   }
+// }
 
 //     request.session.user = request.body.username;
 //     response.json({ success: true, message: "User signed up successfully" });
@@ -132,10 +134,10 @@ app.post("/signup", async (request, response) => {
 //       .json({ success: false, message: "Internal server error" });
 //   }
 // });
-    // await db.query(`INSERT INTO users (username, password) VALUES ($1, $2)`, [
-    //   username,
-    //   hashedPassword,
-    // ]);
+// await db.query(`INSERT INTO users (username, password) VALUES ($1, $2)`, [
+//   username,
+//   hashedPassword,
+// ]);
 
 //     response.json({ success: true, message: "User signed up successfully" });
 //   } catch (error) {
@@ -172,15 +174,17 @@ app.get("/login", (request, response) => {
 
 app.get("/isUserLoggedIn", (request, response) => {
   // localStorage.getItem("favs");
-  console.log("request.session.user",request.session.user)
+  console.log("request.session.user", request.session.user);
   if (request.session.user) {
     console.log("heyo");
-    return response.json({ valid: true, username: request.session.user.username });
+    return response.json({
+      valid: true,
+      username: request.session.user.username,
+    });
   } else {
     return response.json({ valid: false });
   }
 });
-
 
 app.post("/login", async (request, response) => {
   const { username, password } = request.body;
@@ -188,9 +192,9 @@ app.post("/login", async (request, response) => {
 
   try {
     const { data, error } = await supabase
-      .from('users')
+      .from("users")
       .select()
-      .eq('username', username)
+      .eq("username", username)
       .single(); // Expecting only one user
 
     if (error) {
@@ -204,12 +208,14 @@ app.post("/login", async (request, response) => {
 
     if (passwordMatch) {
       request.session.user = data;
-      console.log("data",data)
-      console.log("userlogin",request.session.user)
-      request.session.save()
+      console.log("data", data);
+      console.log("userlogin", request.session.user);
+      request.session.save();
       response.json({ success: true, message: "Login successful" });
     } else {
-      response.status(401).json({ success: false, message: "Invalid credentials" });
+      response
+        .status(401)
+        .json({ success: false, message: "Invalid credentials" });
     }
   } catch (error) {
     response
@@ -217,7 +223,6 @@ app.post("/login", async (request, response) => {
       .json({ success: false, message: "Internal server error" });
   }
 });
-
 
 // app.post("/login", async (request, response) => {
 //   const { username, password } = request.body;
@@ -261,7 +266,7 @@ app.post("/login", async (request, response) => {
 app.post("/favorites", async (req, res) => {
   const { bookId, isFavorite } = req.body;
   const userId = req.session.user.id;
- 
+
   console.log("req.session", req.params); // Assuming you have a logged-in user in the session
   console.log("added to favorite ");
   console.log("UserID", userId);
