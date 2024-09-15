@@ -64,13 +64,13 @@ app.use(
 app.use(cookieParser());
 app.use(bodyparser.urlencoded({ extended: true }));
 app.use(bodyparser());
-
+app.set('trust proxy', true)
 app.use(
   session({
     // store: new RedisStore({ client: redisClient }),
     key: "user",
     secret: "secret",
-    resave: false,
+    resave: true,
     // what works loacally
     // saveUninitialized: true,
     // secure:false,
