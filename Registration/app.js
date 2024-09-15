@@ -20,7 +20,7 @@ const session = require("express-session");
 const nodemon = require("nodemon");
 const supabase = require('./supabaseClient');
 
-const RedisStore = require('connect-redis').default;
+const RedisStore = require('connect-redis')(session);
 const { createClient } = require('redis');
 
 // Redis client configuration (using v4 syntax)
