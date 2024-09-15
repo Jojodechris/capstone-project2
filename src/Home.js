@@ -14,7 +14,7 @@ function Home() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    Axios.get(`${API_BASE_URL}/isUserLoggedIn`)
+    Axios.get(`${API_BASE_URL}/isUserLoggedIn`,{withCredentials:true})
       .then((response) => {
         console.log("USER DATA",response.data);
         if (response.data.valid) {
