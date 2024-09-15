@@ -20,16 +20,17 @@ const session = require("express-session");
 const nodemon = require("nodemon");
 const supabase = require('./supabaseClient');
 
-const RedisStore = require('connect-redis')(session);
-const { createClient } = require('redis');
 
-// Redis client configuration (using v4 syntax)
-let redisClient = createClient({
-  url: process.env.REDIS_URL,
-  legacyMode: true  // Needed for compatibility with `connect-redis`
-});
+// const RedisStore = require('connect-redis')(session);
+// const { createClient } = require('redis');
 
-redisClient.connect().catch(console.error);
+// // Redis client configuration (using v4 syntax)
+// let redisClient = createClient({
+//   url: process.env.REDIS_URL,
+//   legacyMode: true  // Needed for compatibility with `connect-redis`
+// });
+
+// redisClient.connect().catch(console.error);
 
 const port = process.env.PORT || 3001
 
@@ -62,7 +63,7 @@ app.use(bodyparser());
 
 app.use(
   session({
-    store: new RedisStore({ client: redisClient }),
+    // store: new RedisStore({ client: redisClient }),
     key: "user",
     secret: "secret",
     resave: false,
@@ -75,7 +76,7 @@ app.use(
       // sameSite: strict, // Prevents CSRF attacks; use 'strict' in production
       // or lax
       // httpOnly: true, // Helps prevent XSS attacks by not allowing client-side JavaScript to access the cookie
-      secure:true,
+      secure:false,
       expires: 1000 * 60 * 60 * 24,
     },
   })
