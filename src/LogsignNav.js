@@ -30,7 +30,8 @@ function Example(args) {
     return (
       <div>
         <Navbar {...args}>
-          <NavbarBrand href="/">Right book 4</NavbarBrand>
+          <NavbarBrand href="/">Right book 4 you 
+          App </NavbarBrand>
           <NavbarToggler onClick={toggle} />
           <Collapse isOpen={isOpen} navbar>
           <Nav className="me-auto" navbar>
@@ -71,7 +72,7 @@ function Example(args) {
                 </DropdownMenu>
               </UncontrolledDropdown>
             </Nav>
-            <NavbarText>Simple Text</NavbarText> 
+            {/* <NavbarText>Simple Text</NavbarText>  */}
           </Collapse>
         </Navbar>
       </div>

@@ -2,9 +2,11 @@ import Axios from "axios";
 import React, { useState } from "react";
 import { useNavigate, redirect } from "react-router-dom";
 import { useEffect } from "react";
+import { Link } from 'react-router-dom';
 import "./login.css";
 import LogsignHeader from "./LogsignHeader";
 import { API_BASE_URL } from "./Api";
+import Noresults from "./Noresults";
 
 Axios.defaults.withCredentials = true;
 
@@ -77,10 +79,12 @@ function LoginForm() {
             <button className="form-button" type="submit">
               Login
             </button>
+            <p className='textsignup'>Are you a new user? <Link to="/signup">signup</Link></p>
           </form>
+          {/* <Noresults/> */}
         </div>
+        {/* <Noresults/> */}
       </div>
-      <h1>people like book app</h1>
     </div>
   );
 }

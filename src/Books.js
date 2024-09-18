@@ -6,12 +6,14 @@ import Booklist from "./Booklist";
 import Axios from "axios";
 import "./Spinner.css";
 import Message from "./Message";
+import Noresults from "./Noresults";
 
 const Books = () => {
   const [books, setBooks] = useState([]);
   const [searchValue, setSearchValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [sort, setSort] = useState("none");
+
 
   // const [heartStates, setHeartStates] = useState ({});
   
@@ -142,9 +144,10 @@ const Books = () => {
         ) : books.length > 0 ? (
           <Booklist books={{books}} /> // Use sortedBooks function for sorting
         ) : (
-          <div className="no-results">
+          <Noresults/>
+        //   <div className="no-results">
          
-         </div>
+        //  </div>
         )}
       </div>
     </div>

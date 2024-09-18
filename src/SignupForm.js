@@ -80,7 +80,7 @@ function SignupForm() {
             Signup
           </button>
         </form>
-        <p>Already a user? <Link to="/login">Login</Link></p>
+        <p className='textsignup'>Already a user? <Link to="/login">Login</Link></p>
       </div>
     </div>
   );

@@ -1,23 +1,28 @@
 .form-container {
-    display: flex;
-    flex-direction: column;
+    /* display: flex;
+    flex-direction: column; */
     align-items: center;
     justify-content: center;
     /* min-height: 10vh; */
-    background-color: #f0f2f5;
-    height: 100vh;
-    width:100vh;
-    background-image:url(https://www.economist.com/cdn-cgi/image/width=1424,quality=80,format=auto/content-assets/images/20231209_CUD001.jpg);
+    background-color: #253647;
+    margin-top: 100px;
+    /* height: 100vh;
+    width:100vh; */
+    /* background-image:url(https://www.economist.com/cdn-cgi/image/width=1424,quality=80,format=auto/content-assets/images/20231209_CUD001.jpg); */
     opacity: 0.9;
     margin-left: 340px;
     margin-right: 340px;
-    outline: solid 1px black;
+    outline: solid 1px #2C3E50;
     display: flex;
     justify-content: center;
     align-items: center
 
     
   }
+
+
+
+
 
   .about-info{
     background-color: white;
@@ -34,15 +39,24 @@
 
   .form {
     padding: 20px;
-    border-radius: 5px;
-    background-color: #fff;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    /* border-radius: 5px; */
+    /* background-color: #fff; */
+    /* box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); */
     width: 40%;
-    background-image:url(https://www.economist.com/cdn-cgi/image/width=1424,quality=80,format=auto/content-assets/images/20231209_CUD001.jpg);
-    opacity: 2.9;
+    /* height:100vh; */
+    /* background-image:url(https://www.economist.com/cdn-cgi/image/width=1424,quality=80,format=auto/content-assets/images/20231209_CUD001.jpg); */
+    /* opacity: 2.9; */
     
     
   }
+
+
+  /* .no-results{
+    background-image:url(https://images.contentstack.io/v3/assets/bltf6a42d9e46f07d48/blt8ae88c31eeeed222/62d03aaf1b2225113da05acd/brickwork-covers-top.jpg);
+    margin-top:100px ;
+    height: 50vh;
+  } */
+
   
   .form-header {
     text-align: center;
@@ -97,6 +111,10 @@
     border: 1px solid #ccc;
     border-radius: 3px;
   }
+
+  .form-header {
+    color: rgb(255, 255, 255);
+  }
   
   .form-button {
     background-color: #3498db;
@@ -106,6 +124,10 @@
     border-radius: 3px;
     cursor: pointer;
     transition: all 0.3s ease-in-out;
+  }
+
+  .form-label{
+    color:rgb(255, 255, 255);
   }
   
   .form-button:hover {

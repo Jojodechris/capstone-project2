@@ -16,11 +16,14 @@ body {
 
 
   .bigcontainer{
-    /* background-color: #dc3232; */
-    max-height: 100%;
-    background-image:url(https://images.contentstack.io/v3/assets/bltf6a42d9e46f07d48/blt8ae88c31eeeed222/62d03aaf1b2225113da05acd/brickwork-covers-top.jpg);
+    /* background-color: #9d9a9a; */
+    height: 100vh;
 
+    background-image:url(https://cdn.pixabay.com/photo/2016/02/16/21/07/books-1204029_640.jpg)
+  }
 
+  .textsignup{
+    color:white;
   }
 
 
