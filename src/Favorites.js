@@ -9,7 +9,7 @@ const Favorites = () => {
   useEffect(() => {
     const fetchFavorites = async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}displayfavorites`, {
+        const response = await fetch(`${API_BASE_URL}/displayfavorites`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",

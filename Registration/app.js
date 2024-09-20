@@ -76,11 +76,12 @@ app.use(
     // secure:false,
     saveUninitialized: true,
     cookie: {
+      secure:true,
       // secure: false, // Ensure cookies are only sent over HTTPS in production
       sameSite: "none", // Prevents CSRF attacks; use 'strict' in production
       // or lax
       // httpOnly: true, // Helps prevent XSS attacks by not allowing client-side JavaScript to access the cookie
-      secure: true,
+      // secure: true,
       expires: 1000 * 60 * 60 * 24,
     },
   })
@@ -95,7 +96,7 @@ app.post("/signup", async (request, response) => {
 
     const { data, error } = await supabase
       .from("users")
-      .insert([{ username, password: hashedPassword }])
+      .insert([{ username:username, password: hashedPassword }])
       .select()
       .single();
     console.log("ERROR", error);
@@ -186,6 +187,10 @@ app.get("/isUserLoggedIn", (request, response) => {
   }
 });
 
+
+
+
+
 app.post("/login", async (request, response) => {
   const { username, password } = request.body;
   console.log("Username:", username);
@@ -263,42 +268,106 @@ app.post("/login", async (request, response) => {
 //   }
 // });
 // backend
+
+// // POSTGRE SQL QUERY DOWN HERE:
+// app.post("/favorites", async (req, res) => {
+//   const { bookId, isFavorite } = req.body;
+//   console.log(req.session.user, "checking userid");
+//   const userId = req.session.user.id;
+
+//   console.log("req.session", req.params);
+//   console.log("added to favorite ");
+//   console.log("UserID", userId);
+//   console.log("bookId", bookId);
+//   console.log("isFavorite", isFavorite);
+
+//   if (!userId || !bookId) {
+//     return res.status(400).json({ success: false, message: "Invalid data" });
+//   }
+
+//   try {
+//     if (isFavorite) {
+//       // Check if the book is already in favorites
+//       const existingData = await db.query(
+//         "SELECT * FROM favorites WHERE user_id = $1 AND book_id = $2",
+//         [userId, bookId]
+//       );
+
+//       if (existingData.rows.length === 0) {
+//         // Add the book to favorites
+//         await db.query(
+//           "INSERT INTO favorites (user_id, book_id) VALUES ($1, $2)",
+//           [userId, bookId]
+//         );
+//         console.log("Book added to favorites");
+//       } else {
+//         console.log("Book already in favorites");
+//       }
+//     } else {
+//       // Remove the book from favorites
+//       await db.query(
+//         "DELETE FROM favorites WHERE user_id = $1 AND book_id = $2",
+//         [userId, bookId]
+//       );
+//       console.log("Book removed from favorites");
+//     }
+
+//     res.json({ success: true, message: "Favorite toggled successfully" });
+//   } catch (error) {
+//     console.error("Error toggling favorite:", error);
+//     res.status(500).json({ success: false, message: "Internal server error" });
+//   }
+// });
+
+
+
+// SUPABASE QUERY DOWN HERE: 
 app.post("/favorites", async (req, res) => {
   const { bookId, isFavorite } = req.body;
-  const userId = req.session.user.id;
+  const userId = req.session?.user?.id;  // Safely checking for session and user object
 
-  console.log("req.session", req.params); // Assuming you have a logged-in user in the session
-  console.log("added to favorite ");
-  console.log("UserID", userId);
-  console.log("bookId", bookId);
+  console.log("UserID:", userId);
+  console.log("bookId:", bookId);
+  console.log("isFavorite:", isFavorite);
+
+  if (!userId || !bookId) {
+    return res.status(400).json({ success: false, message: "Invalid request data" });
+  }
 
   try {
-    if (isFavorite && userId) {
-      console.log("yeah");
-      // Add the book to favorites
-      // query the database
-      const existingData = await db.query(
-        "SELECT * FROM favorites WHERE user_id=$1 AND book_id= $2",
-        [userId, bookId]
-      );
+    if (isFavorite) {
+      // Check if favorite already exists
+      const { data: favoritedata, error: selectError } = await supabase
+        .from('favorites')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('book_id', bookId);
 
-      //
-      if (existingData.rows.length === 0) {
-        console.log("existingDataRows", existingData.rows.length);
+      if (selectError) throw selectError;
 
-        // if !book.id is already in favorites where  user_id=userId and book_id=bookId then return
-        await db.query(
-          "INSERT INTO favorites (user_id, book_id) VALUES ($1, $2)",
-          [userId, bookId]
-        );
+      if (favoritedata.length === 0) {
+        // Add to favorites if it doesn't already exist
+        const { data: insertData, error: insertError } = await supabase
+          .from('favorites')
+          .insert([{ user_id: userId, book_id: bookId }]);
+
+        if (insertError) throw insertError;
+
+        console.log("Added to favorites:", insertData);
+      } else {
+        console.log("Already in favorites.");
       }
     } else {
-      console.log("remove");
       // Remove the book from favorites
-      await db.query(
-        "DELETE FROM favorites WHERE user_id = $1 AND book_id = $2",
-        [userId, bookId]
-      );
+      const { error: deleteError } = await supabase
+        .from('favorites')
+        .delete()
+        .eq('user_id', userId)
+        .eq('book_id', bookId);
+
+      if (deleteError) throw deleteError;
+
+      console.log("Removed from favorites.");
     }
 
     res.json({ success: true, message: "Favorite toggled successfully" });
@@ -307,18 +376,41 @@ app.post("/favorites", async (req, res) => {
     res.status(500).json({ success: false, message: "Internal server error" });
   }
 });
+
 // function removeDuplicatess() {
 //   return Array.from(new Set());
 // }
+// POSTGRESQL QUERY 
+// app.get("/displayfavorites", async (req, res) => {
+//   const userId = req.session.user.id;
+//   try {
+//     const favorite = await db.query(
+//       "SELECT * FROM favorites WHERE user_id = $1",
+//       [userId]
+//     );
+//     res.json({ success: true, favorites: favorite.rows });
+//     console.log("favo", favorite);
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ success: false, message: "Internal server error" });
+//   }
+// });
 
+// SUPABASE
 app.get("/displayfavorites", async (req, res) => {
   const userId = req.session.user.id;
   try {
-    const favorite = await db.query(
-      "SELECT * FROM favorites WHERE user_id = $1",
-      [userId]
-    );
-    res.json({ success: true, favorites: favorite.rows });
+    // Assuming `supabase` is already initialized
+    const { data: favorite, error } = await supabase
+      .from('favorites')
+      .select('*')
+      .eq('user_id', userId);
+
+    if (error) {
+      throw error;
+    }
+
+    res.json({ success: true, favorites: favorite });
     console.log("favo", favorite);
   } catch (error) {
     console.error(error);
@@ -326,39 +418,82 @@ app.get("/displayfavorites", async (req, res) => {
   }
 });
 
-app.get("/likedBooks", async (req, res) => {
-  // const userId = req.session.user.id
-  try {
-    // const {bookId} = req.body;
 
-    const likedBooks = await db.query("SELECT book_id FROM favorites ", []);
+
+// app.get("/likedBooks", async (req, res) => {
+//   // const userId = req.session.user.id
+//   try {
+//     // const {bookId} = req.body;
+
+//     const likedBooks = await db.query("SELECT book_id FROM favorites ", []);
+//     function findMostOccurringElements(arr) {
+//       // Create an object to store the count of each element
+//       const countMap = {};
+
+//       // Iterate through the array and count occurrences
+//       arr.forEach((item) => {
+//         const key = item.book_id;
+//         countMap[key] = (countMap[key] || 0) + 1;
+//       });
+
+//       // Find elements with more than one occurrence
+//       const mostOccurringElements = Object.keys(countMap).filter(
+//         (key) => countMap[key] > 1
+//       );
+
+//       return mostOccurringElements;
+//     }
+//     res.json({
+//       success: true,
+//       books: findMostOccurringElements(likedBooks.rows),
+//     });
+//     console.log("most liked", findMostOccurringElements(likedBooks.rows));
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ success: false, message: "Internal server error" });
+//   }
+// });
+
+
+app.get("/likedBooks", async (req, res) => {
+  try {
+    // Fetch all book_ids from the 'favorites' table
+    const { data: likedBooks, error } = await supabase
+      .from('favorites')
+      .select('book_id');
+
+    if (error) {
+      throw error;
+    }
+
     function findMostOccurringElements(arr) {
-      // Create an object to store the count of each element
       const countMap = {};
 
-      // Iterate through the array and count occurrences
+      // Count occurrences of each book_id
       arr.forEach((item) => {
         const key = item.book_id;
         countMap[key] = (countMap[key] || 0) + 1;
       });
 
-      // Find elements with more than one occurrence
+      // Find book_ids with more than one occurrence
       const mostOccurringElements = Object.keys(countMap).filter(
         (key) => countMap[key] > 1
       );
 
       return mostOccurringElements;
     }
+
     res.json({
       success: true,
-      books: findMostOccurringElements(likedBooks.rows),
+      books: findMostOccurringElements(likedBooks),
     });
-    console.log("most liked", findMostOccurringElements(likedBooks.rows));
+    console.log("most liked", findMostOccurringElements(likedBooks));
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, message: "Internal server error" });
   }
 });
+
 
 // app.use("/reviews", reviewsHandler);
 
