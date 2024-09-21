@@ -20,7 +20,7 @@ const Logoutform = () => {
       
             if (response.ok) {
               // Redirect to the login page or perform any other actions after successful logout
-              window.location.href = '/login';
+              navigate('/login');
             } else {
               // Handle error (e.g., show an error message)
               console.error('Logout failed');
