@@ -15,11 +15,11 @@ class Search extends Component {
             placeholder="Search for a book...🔍"
           />
           <button type="submit">Search</button>
-          <select defaultValue="sort" onChange={this.props.handleSort}>
+          {/* <select defaultValue="sort" onChange={this.props.handleSort}>
             <option value="sort">Sort</option>
             <option value="Newest">Newest</option>
             <option value="Oldest">Oldest</option>
-           </select> 
+           </select>  */}
         </form>
       </div>
     );

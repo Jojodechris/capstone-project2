@@ -33,6 +33,30 @@ body {
     height: 50vh;
   }
 
+  .footpage{
+    background-image:url(https://images.contentstack.io/v3/assets/bltf6a42d9e46f07d48/blt8ae88c31eeeed222/62d03aaf1b2225113da05acd/brickwork-covers-top.jpg);
+    margin-top:100px;
+    height: 50vh;
+  }
+
+  .logoutcontainer{
+    max-width: fit-content;
+    margin-left: auto;
+    margin-right: auto;
+    background-color: #858d96;
+  }
+
+
+  .bigcontainerlog{
+    background-image:url(https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSB6UAKjxIQ3RzRHN2EWAkFdxmxH5VfDsG52A&s);
+    height: 20vh;
+  }
+
+
+  .containerlog{
+    margin-top:40px;
+  }
+
 
 
   i{
@@ -87,6 +111,14 @@ body {
 
 
   }
+
+  .btnlogout{
+    display: grid;
+  }
+
+
+
+
   .list {
     display: flex;
     flex-wrap: wrap;
