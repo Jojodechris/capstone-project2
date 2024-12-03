@@ -15,9 +15,35 @@
     outline: solid 1px #2C3E50;
     display: flex;
     justify-content: center;
-    align-items: center
+    align-items: center;
+  }
 
-    
+  @media (max-width: 768px) {
+    /* nav ul {
+      flex-direction: column;
+    }
+  
+    nav ul li {
+      margin: 10px 0;
+    } */
+    .bigcontainer{
+   
+
+    }
+
+    .form{
+      top: 50%; /* IMPORTANT */
+      /* left: 80%; IMPORTANT */
+      display: block;
+      position: absolute;
+      /* background: url(images/background.png) no-repeat center center; */
+      width: 750px;
+      height: 417px;
+
+      margin-top: -208.5px; /* HALF OF THE HEIGHT */
+      margin-left: -375px; /* HALF OF THE WIDTH */
+      background-color: #253647;
+    }
   }
 
 
