@@ -64,7 +64,7 @@ app.use(
 app.use(cookieParser());
 app.use(bodyparser.urlencoded({ extended: true }));
 app.use(bodyparser());
-app.set('trust proxy', false)
+app.set('trust proxy', true)
 app.use(
   session({
     // store: new RedisStore({ client: redisClient }),
