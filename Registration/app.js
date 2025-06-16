@@ -1,39 +1,24 @@
 // app.js
+require('dotenv').config(); // Load environment variables from .env file
+
 const express = require("express");
 const app = express();
-
 const cors = require("cors");
 const { Pool } = require("pg");
 const bcrypt = require("bcrypt");
 const saltRounds = 10;
 
-function removeDuplicates(arr) {
-  return Array.from(new Set(arr));
-}
-
-// parse body
-const bodyparser = require("body-parser");
-// cookie body
+// cookie parser
 const cookieParser = require("cookie-parser");
 // create session to keep user log in
 const session = require("express-session");
-const nodemon = require("nodemon");
+
+// Import Supabase client (assuming supabaseClient.js correctly initializes it)
 const supabase = require("./supabaseClient");
-
-// const RedisStore = require('connect-redis')(session);
-// const { createClient } = require('redis');
-
-// // Redis client configuration (using v4 syntax)
-// let redisClient = createClient({
-//   url: process.env.REDIS_URL,
-//   legacyMode: true  // Needed for compatibility with `connect-redis`
-// });
-
-// redisClient.connect().catch(console.error);
 
 const port = process.env.PORT || 3001;
 
-// Database configuration
+// Database configuration (for PostgreSQL, if you're still using it for some routes)
 const db = new Pool({
   user: process.env.DATABASE_USER,
   password: process.env.DATABASE_PASSWORD,
@@ -42,304 +27,212 @@ const db = new Pool({
   database: process.env.DATABASE_NAME,
 });
 
-const isProduction = process.env.NODE_ENV === "development";
+// Test DB connection (optional, but good for debugging)
+db.connect()
+  .then(() => console.log('Connected to PostgreSQL database!'))
+  .catch(err => console.error('Error connecting to PostgreSQL database', err));
 
-app.use(bodyparser.json());
-app.use(express.json());
+const isProduction = process.env.NODE_ENV === "production"; // Correctly define production environment
+
+// === Middleware Configuration - Order Matters! ===
+// 1. Body Parsers (must come before routes and session)
+app.use(express.json()); // To parse JSON bodies from client requests
+app.use(express.urlencoded({ extended: true })); // To parse URL-encoded bodies (for forms)
+
+// 2. Cookie Parser
+app.use(cookieParser()); // To parse cookies
+
+// 3. Trust Proxy (Crucial for sessions when deployed behind a proxy like Render)
+// '1' trusts the first proxy hop (e.g., Render's load balancer)
+app.set('trust proxy', 1);
+
+// 4. CORS Configuration (must come before routes but after parsers for preflight requests)
 app.use(
   cors({
-    AccessControlAllowOrigin: [
-      "http://localhost:3000",
-      "http://localhost:3001",
-      "https://capstone-project2-pt29.onrender.com/",
-      "https://front-end-4ytj.onrender.com",
-    ],
-    origin:"https://front-end-4ytj.onrender.com",
-    // origin: "http://localhost:3000",
-    methods: ("GET", "POST", "PUT", "DELETE"),
-    credentials: true,
+    // Dynamically set origin based on environment
+    origin: isProduction ? "https://front-end-4ytj.onrender.com" : "http://localhost:3000",
+    methods: ["GET", "POST", "PUT", "DELETE"], // Correct syntax: array of strings
+    credentials: true, // Allow cookies to be sent with cross-origin requests
   })
 );
 
-app.use(cookieParser());
-app.use(bodyparser.urlencoded({ extended: true }));
-app.use(bodyparser());
-app.set('trust proxy', true)
+// 5. Session Middleware
 app.use(
   session({
-    // store: new RedisStore({ client: redisClient }),
-    key: "user",
-    secret: "secret",
-    resave: true,
-    // what works loacally
-    // saveUninitialized: true,
-    // secure:false,
-    saveUninitialized: true,
+    // IMPORTANT: Use a strong, unique secret from environment variables
+    secret: process.env.SESSION_SECRET,
+    name: "user_sid", // Cookie name for the session ID (often 'connect.sid' by default)
+    resave: false, // Don't save session if not modified (good practice)
+    saveUninitialized: false, // Don't create session for unauthenticated users (good practice)
     cookie: {
-      secure:true,
-      // secure: false, // Ensure cookies are only sent over HTTPS in production
-      sameSite: "none", // Prevents CSRF attacks; use 'strict' in production
-      // or lax
-      // httpOnly: true, // Helps prevent XSS attacks by not allowing client-side JavaScript to access the cookie
-      // secure: true,
-      expires: 1000 * 60 * 60 * 24,
+      // Set 'secure' to true only in production (requires HTTPS)
+      secure: isProduction,
+      // 'httpOnly: true' prevents client-side JS from accessing the cookie (security)
+      httpOnly: true,
+      // 'sameSite: 'none'' is required for cross-site cookies with 'secure: true'
+      // 'lax' is generally fine for same-site development
+      sameSite: isProduction ? 'none' : 'lax',
+      maxAge: 1000 * 60 * 60 * 24, // 24 hours in milliseconds
     },
   })
 );
 
+// --- ROUTES ---
+
 app.post("/signup", async (request, response) => {
   const { username, password } = request.body;
-  console.log("Username:", username); // Log username separately
+  console.log("Signup attempt for Username:", username);
+
+  if (!username || !password) {
+    return response.status(400).json({ success: false, message: "Username and password are required." });
+  }
 
   try {
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-    const { data, error } = await supabase
+    // Using Supabase for user signup
+    const { data: userData, error: supabaseError } = await supabase
       .from("users")
-      .insert([{ username:username, password: hashedPassword }])
-      .select()
-      .single();
-    console.log("ERROR", error);
-    console.error("error", error);
-    if (data) {
-      // Check if data exists
-      console.log(data);
-      request.session.user = data; // Assign the session
-      response.json({ success: true, message: "User signed up successfully" });
+      .insert([{ username: username, password: hashedPassword }])
+      .select(); // No .single() here, as insert returns an array
+
+    if (supabaseError) {
+      console.error("Supabase Signup Error:", supabaseError);
+      // Check for unique constraint violation (username already exists)
+      if (supabaseError.code === '23505') { // PostgreSQL unique violation error code
+        return response.status(400).json({ success: false, message: "Username already exists." });
+      }
+      return response.status(500).json({ success: false, message: "Error during user signup." });
+    }
+
+    if (userData && userData.length > 0) {
+      // Store the user object (the first element of the array) in the session
+      request.session.user = userData[0];
+      // Explicitly save the session after modifying it
+      request.session.save((err) => {
+        if (err) {
+          console.error("Session save error after signup:", err);
+          return response.status(500).json({ success: false, message: "Signup successful, but session could not be saved." });
+        }
+        response.json({ success: true, message: "User signed up successfully" });
+      });
     } else {
-      // Handle potential insertion errors
-      response.status(400).json({ success: false, message: error });
+      // This case should ideally not be hit with successful insert.
+      response.status(400).json({ success: false, message: "Failed to create user account." });
     }
   } catch (error) {
-    response
-      .status(500)
-      .json({ success: false, message: "Internal server error" });
+    console.error("Internal server error during signup:", error);
+    response.status(500).json({ success: false, message: "Internal server error." });
   }
 });
 
-// if (error) {
-//   // Check for specific errors (e.g., username conflict)
-//   if (error.code === '23505') {
-//     response.status(400).json({ success: false, message: "Username already exists" });
-//   } else {
-//     throw error; // Re-throw other errors for generic handling
-//   }
-// }
-
-//     request.session.user = request.body.username;
-//     response.json({ success: true, message: "User signed up successfully" });
-//   } catch (error) {
-//     console.error(error);
-//     response
-//       .status(500)
-//       .json({ success: false, message: "Internal server error" });
-//   }
-// });
-// await db.query(`INSERT INTO users (username, password) VALUES ($1, $2)`, [
-//   username,
-//   hashedPassword,
-// ]);
-
-//     response.json({ success: true, message: "User signed up successfully" });
-//   } catch (error) {
-//     console.error(error);
-//     response
-//       .status(500)
-//       .json({ success: false, message: "Internal server error" });
-//   }
-// });
-
-// app.post("/reviews", async (req, response) => {
-//   const userId = req.session.userId;
-//   const { reviews,bookId} = req.body;
-//   try {
-//     await db.query(
-//       `INSERT INTO reviewsList (user_id,reviews,book_id) VALUES ($1, $2)`,
-//       [userId,reviews,bookId]
-//     );
-
-//     response.json({ success: true, message: "reviewed successfully" });
-//   } catch (error) {
-//     console.error(error);
-//     response.status(500).json({ success: false, message: "Internal server error" });
-//   }
-// });
-
-app.get("/login", (request, response) => {
-  if (!request.session.user) {
-    response.send({ loggedIn: true, user: request.session.user });
-  } else {
-    response.send({ loggedIn: false });
-  }
-});
-
+// Checks if user is logged in (for initial client-side check)
 app.get("/isUserLoggedIn", (request, response) => {
-  // localStorage.getItem("favs");
-  console.log("request.session.user", request.session.user);
+  console.log("Checking session for user in /isUserLoggedIn:", request.session.user);
   if (request.session.user) {
-    console.log("heyo");
     return response.json({
       valid: true,
       username: request.session.user.username,
+      id: request.session.user.id // Include ID for client-side use if needed
     });
   } else {
     return response.json({ valid: false });
   }
 });
 
-
-
-
-
+// User login route
 app.post("/login", async (request, response) => {
   const { username, password } = request.body;
-  console.log("Username:", username);
+  console.log("Login attempt for Username:", username);
+
+  if (!username || !password) {
+    return response.status(400).json({ success: false, message: "Username and password are required." });
+  }
 
   try {
-    const { data, error } = await supabase
+    // Using Supabase to fetch user
+    const { data: user, error: supabaseError } = await supabase
       .from("users")
-      .select()
+      .select('*') // Select all columns, including 'password' for comparison
       .eq("username", username)
-      .single(); // Expecting only one user
+      .single(); // Expecting exactly one user
 
-    if (error) {
-      response.status(400).json({ success: false, message: "User not found" });
-      return;
+    if (supabaseError) {
+      // Supabase errors could indicate no user found, or a database issue
+      console.error("Supabase Login Query Error:", supabaseError);
+      return response.status(400).json({ success: false, message: "Invalid credentials." });
     }
 
-    const user = data;
+    if (!user) { // If Supabase returns no data (e.g., user doesn't exist)
+      console.log("User not found for login:", username);
+      return response.status(400).json({ success: false, message: "Invalid credentials." });
+    }
 
+    // Compare provided password with hashed password from the database
     const passwordMatch = await bcrypt.compare(password, user.password);
 
     if (passwordMatch) {
-      request.session.user = data;
-      console.log("data", data);
-      console.log("userlogin", request.session.user);
-      request.session.save();
-      response.json({ success: true, message: "Login successful" });
+      // Store the full user object in the session
+      request.session.user = user;
+      console.log("Login successful. Session user data:", request.session.user);
+
+      // Explicitly save the session after modifying it
+      request.session.save((err) => {
+        if (err) {
+          console.error("Session save error after login:", err);
+          return response.status(500).json({ success: false, message: "Login successful, but session could not be saved." });
+        }
+        response.json({ success: true, message: "Login successful" });
+      });
+
     } else {
-      response
-        .status(401)
-        .json({ success: false, message: "Invalid credentials" });
+      console.log("Password mismatch for user:", username);
+      response.status(401).json({ success: false, message: "Invalid credentials." });
     }
   } catch (error) {
-    response
-      .status(500)
-      .json({ success: false, message: "Internal server error" });
+    console.error("Internal server error during login process:", error);
+    response.status(500).json({ success: false, message: "Internal server error." });
   }
 });
 
-// app.post("/login", async (request, response) => {
-//   const { username, password } = request.body;
 
-//   try {
-//     const result = await db.query("SELECT * FROM users WHERE username = $1", [
-//       username,
-//     ]);
-
-//     if (result.rows.length > 0) {
-//       const match = await bcrypt.compare(password, result.rows[0].password);
-
-//       if (match) {
-//         // save user in the session
-//         request.session.username = result.rows[0].username;
-//         console.log(result);
-//         request.session.userId = result.rows[0].id;
-//         console.log(request.session.userId, "user id");
-//         console.log(request.session.username);
-//         response.json({
-//           success: true,
-//           message: "Login successful",
-//           user: result.rows[0],
-//         });
-//       } else {
-//         response
-//           .status(401)
-//           .json({ success: false, message: "Wrong password" });
-//       }
-//     } else {
-//       response.status(404).json({ success: false, message: "User not found" });
-//     }
-//   } catch (error) {
-//     console.error(error);
-//     response
-//       .status(500)
-//       .json({ success: false, message: "Internal server error" });
-//   }
-// });
-// backend
-
-// // POSTGRE SQL QUERY DOWN HERE:
-// app.post("/favorites", async (req, res) => {
-//   const { bookId, isFavorite } = req.body;
-//   console.log(req.session.user, "checking userid");
-//   const userId = req.session.user.id;
-
-//   console.log("req.session", req.params);
-//   console.log("added to favorite ");
-//   console.log("UserID", userId);
-//   console.log("bookId", bookId);
-//   console.log("isFavorite", isFavorite);
-
-//   if (!userId || !bookId) {
-//     return res.status(400).json({ success: false, message: "Invalid data" });
-//   }
-
-//   try {
-//     if (isFavorite) {
-//       // Check if the book is already in favorites
-//       const existingData = await db.query(
-//         "SELECT * FROM favorites WHERE user_id = $1 AND book_id = $2",
-//         [userId, bookId]
-//       );
-
-//       if (existingData.rows.length === 0) {
-//         // Add the book to favorites
-//         await db.query(
-//           "INSERT INTO favorites (user_id, book_id) VALUES ($1, $2)",
-//           [userId, bookId]
-//         );
-//         console.log("Book added to favorites");
-//       } else {
-//         console.log("Book already in favorites");
-//       }
-//     } else {
-//       // Remove the book from favorites
-//       await db.query(
-//         "DELETE FROM favorites WHERE user_id = $1 AND book_id = $2",
-//         [userId, bookId]
-//       );
-//       console.log("Book removed from favorites");
-//     }
-
-//     res.json({ success: true, message: "Favorite toggled successfully" });
-//   } catch (error) {
-//     console.error("Error toggling favorite:", error);
-//     res.status(500).json({ success: false, message: "Internal server error" });
-//   }
-// });
+// Add an explicit logout route
+app.post("/logout", (req, res) => {
+  // Clear the session
+  req.session.destroy((err) => {
+    if (err) {
+      console.error("Error destroying session during logout:", err);
+      res.status(500).send("Internal Server Error");
+    } else {
+      // Clear the session cookie from the client's browser
+      res.clearCookie("user_sid"); // Use the same name as specified in session config 'name' property
+      res.status(200).send("Logout successful");
+    }
+  });
+});
 
 
-
-// SUPABASE QUERY DOWN HERE: 
+// === Favorites (Supabase) ===
 app.post("/favorites", async (req, res) => {
   const { bookId, isFavorite } = req.body;
-  const userId = req.session?.user?.id;  // Safely checking for session and user object
+  // Ensure user is logged in and session.user exists
+  const userId = req.session?.user?.id;
 
-  console.log("UserID:", userId);
-  console.log("bookId:", bookId);
-  console.log("isFavorite:", isFavorite);
-
-  if (!userId || !bookId) {
-    return res.status(400).json({ success: false, message: "Invalid request data" });
+  if (!userId) {
+    return res.status(401).json({ success: false, message: "Unauthorized: User not logged in." });
   }
+  if (!bookId) {
+    return res.status(400).json({ success: false, message: "Invalid book ID." });
+  }
+
+  console.log("UserID:", userId, "BookId:", bookId, "isFavorite:", isFavorite);
 
   try {
     if (isFavorite) {
-      // Check if favorite already exists
+      // Check if favorite already exists to prevent duplicates
       const { data: favoritedata, error: selectError } = await supabase
         .from('favorites')
-        .select('*')
+        .select('id') // Only select id, as we just need to know if it exists
         .eq('user_id', userId)
         .eq('book_id', bookId);
 
@@ -347,15 +240,16 @@ app.post("/favorites", async (req, res) => {
 
       if (favoritedata.length === 0) {
         // Add to favorites if it doesn't already exist
-        const { data: insertData, error: insertError } = await supabase
+        const { error: insertError } = await supabase
           .from('favorites')
           .insert([{ user_id: userId, book_id: bookId }]);
 
         if (insertError) throw insertError;
-
-        console.log("Added to favorites:", insertData);
+        console.log("Book added to favorites for user", userId);
+        return res.json({ success: true, message: "Book added to favorites." });
       } else {
-        console.log("Already in favorites.");
+        console.log("Book already in favorites for user", userId);
+        return res.json({ success: true, message: "Book already in favorites." });
       }
     } else {
       // Remove the book from favorites
@@ -366,182 +260,112 @@ app.post("/favorites", async (req, res) => {
         .eq('book_id', bookId);
 
       if (deleteError) throw deleteError;
-
-      console.log("Removed from favorites.");
+      console.log("Book removed from favorites for user", userId);
+      return res.json({ success: true, message: "Book removed from favorites." });
     }
-
-    res.json({ success: true, message: "Favorite toggled successfully" });
   } catch (error) {
     console.error("Error toggling favorite:", error);
-    res.status(500).json({ success: false, message: "Internal server error" });
+    res.status(500).json({ success: false, message: "Internal server error." });
   }
 });
 
-// function removeDuplicatess() {
-//   return Array.from(new Set());
-// }
-// POSTGRESQL QUERY 
-// app.get("/displayfavorites", async (req, res) => {
-//   const userId = req.session.user.id;
-//   try {
-//     const favorite = await db.query(
-//       "SELECT * FROM favorites WHERE user_id = $1",
-//       [userId]
-//     );
-//     res.json({ success: true, favorites: favorite.rows });
-//     console.log("favo", favorite);
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ success: false, message: "Internal server error" });
-//   }
-// });
 
-// SUPABASE
 app.get("/displayfavorites", async (req, res) => {
-  const userId = req.session.user.id;
+  const userId = req.session?.user?.id;
+
+  if (!userId) {
+    return res.status(401).json({ success: false, message: "Unauthorized: User not logged in." });
+  }
+
   try {
-    // Assuming `supabase` is already initialized
-    const { data: favorite, error } = await supabase
+    const { data: favorites, error } = await supabase
       .from('favorites')
       .select('*')
       .eq('user_id', userId);
 
     if (error) {
+      console.error("Supabase error fetching favorites:", error);
       throw error;
     }
 
-    res.json({ success: true, favorites: favorite });
-    console.log("favo", favorite);
+    res.json({ success: true, favorites: favorites });
+    console.log("Fetched favorites for user", userId, ":", favorites);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ success: false, message: "Internal server error" });
+    console.error("Server error displaying favorites:", error);
+    res.status(500).json({ success: false, message: "Internal server error." });
   }
 });
 
 
-
-// app.get("/likedBooks", async (req, res) => {
-//   // const userId = req.session.user.id
-//   try {
-//     // const {bookId} = req.body;
-
-//     const likedBooks = await db.query("SELECT book_id FROM favorites ", []);
-//     function findMostOccurringElements(arr) {
-//       // Create an object to store the count of each element
-//       const countMap = {};
-
-//       // Iterate through the array and count occurrences
-//       arr.forEach((item) => {
-//         const key = item.book_id;
-//         countMap[key] = (countMap[key] || 0) + 1;
-//       });
-
-//       // Find elements with more than one occurrence
-//       const mostOccurringElements = Object.keys(countMap).filter(
-//         (key) => countMap[key] > 1
-//       );
-
-//       return mostOccurringElements;
-//     }
-//     res.json({
-//       success: true,
-//       books: findMostOccurringElements(likedBooks.rows),
-//     });
-//     console.log("most liked", findMostOccurringElements(likedBooks.rows));
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ success: false, message: "Internal server error" });
-//   }
-// });
-
-
 app.get("/likedBooks", async (req, res) => {
   try {
-    // Fetch all book_ids from the 'favorites' table
-    const { data: likedBooks, error } = await supabase
+    const { data: likedBooksData, error } = await supabase
       .from('favorites')
-      .select('book_id');
+      .select('book_id'); // Just get the book_id column
 
     if (error) {
+      console.error("Supabase error fetching liked books:", error);
       throw error;
     }
 
+    // Helper function moved inside to ensure it's used with the correct data structure
     function findMostOccurringElements(arr) {
       const countMap = {};
-
-      // Count occurrences of each book_id
       arr.forEach((item) => {
         const key = item.book_id;
         countMap[key] = (countMap[key] || 0) + 1;
       });
 
-      // Find book_ids with more than one occurrence
+      // Filter for elements with more than one occurrence
+      // You might want to sort these or limit the number returned
       const mostOccurringElements = Object.keys(countMap).filter(
         (key) => countMap[key] > 1
       );
-
       return mostOccurringElements;
     }
 
     res.json({
       success: true,
-      books: findMostOccurringElements(likedBooks),
+      books: findMostOccurringElements(likedBooksData),
     });
-    console.log("most liked", findMostOccurringElements(likedBooks));
+    console.log("Most liked books (more than 1 like):", findMostOccurringElements(likedBooksData));
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ success: false, message: "Internal server error" });
+    console.error("Server error getting liked books:", error);
+    res.status(500).json({ success: false, message: "Internal server error." });
   }
 });
 
-
-// app.use("/reviews", reviewsHandler);
-
-// app.post("/reviews", async (req, res) => {
-// // function reviewsHandler(req, res) {
-//   const { bookId, comment } = req.body;
-//   const userId = req.session.userId;
-
-// //   if (req.method === "POST") {
-//     // Insert rating and comments in the database
-//     db.query('INSERT INTO reviews(user_id, book_id,comment) VALUES($1, $2, $3)', [userId, bookId,comment])
-//     .then(() => {
-//       res.json({ success: true, message: "Review added successfully" });
-// Move the SELECT query here
-//     db.query("SELECT * FROM reviews WHERE book_id = $1", [bookId])
-//   .then((result) => {
-//     res.json({ success: true, reviews: result.rows });
-//     console.log("review", result.rows);
-//  })
-//     .catch((error) => {
-//      console.error(error);
-//      res.status(500).json({ success: false, message: "Internal server error" });
-//    });
-// })
-// }else{
-//   console.log("Method not allowed");
-// }
-
+// === Reviews (PostgreSQL - as per your original code) ===
+// Note: If you're using Supabase for users and favorites, you might consider
+// using Supabase for reviews as well for consistency.
 app.post("/reviews/:bookId", async (request, res) => {
-  const { bookId, newReview } = request.body;
-  const userId = request.session.user.id;
-  console.log("userID creator", userId);
+  // Original code had bookId in params and body, assuming body is correct source for newReview object
+  const { newReview } = request.body;
+  const { bookId } = request.params; // Get bookId from URL params as per route definition
+
+  const userId = request.session?.user?.id; // Safely get userId from session
+
+  if (!userId) {
+    return res.status(401).json({ success: false, message: "Unauthorized: User not logged in to post review." });
+  }
+  if (!bookId || !newReview || !newReview.content || newReview.rating === undefined) {
+    return res.status(400).json({ success: false, message: "Invalid review data provided." });
+  }
 
   const { content, rating } = newReview;
-  console.log("content", content + "book", bookId);
+  console.log("User", userId, "posting review for Book", bookId, ": Content='", content, "', Rating=", rating);
+
   try {
-    // Insert rating and comments in the database
+    // Insert review into PostgreSQL database
     const result = await db.query(
-      "INSERT INTO reviewsList(user_id, book_id,rating, content) VALUES($1, $2, $3, $4)",
+      "INSERT INTO reviewsList(user_id, book_id, rating, content) VALUES($1, $2, $3, $4) RETURNING *", // RETURNING * to get inserted row
       [userId, bookId, rating, content]
     );
-    console.log("result", result);
-    console.log("id", userId);
 
-    // Move the SELECT query here
+    // After successful insert, query for all reviews for that book
     const results = await db.query(
-      "SELECT * FROM reviewsList WHERE user_id = $1 AND book_id = $2",
-      [request.session.userId, bookId]
+      "SELECT r.*, u.username FROM reviewsList r JOIN users u ON r.user_id = u.id WHERE r.book_id = $1",
+      [bookId]
     );
 
     res.json({
@@ -549,10 +373,10 @@ app.post("/reviews/:bookId", async (request, res) => {
       message: "Review added successfully",
       reviews: results.rows,
     });
-    console.log("Review", results.rows);
+    console.log("Reviews for book", bookId, ":", results.rows);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ success: false, message: "Internal server error" });
+    console.error("Error posting review:", error);
+    res.status(500).json({ success: false, message: "Internal server error." });
   }
 });
 
@@ -560,90 +384,68 @@ app.get("/reviews/:bookId", async (req, res) => {
   const { bookId } = req.params;
 
   try {
-    // 1. Get user ID from session (assuming it's stored there)
-    const userId = req.session.user.id;
-
-    // 2. Query for reviews of the specific book
-    const reviews = await db.query(
-      "SELECT * FROM reviewsList WHERE book_id = $1",
+    // Query for reviews of the specific book, joining with users to get username directly
+    const reviewsResult = await db.query(
+      "SELECT r.id, r.user_id, r.book_id, r.rating, r.content, u.username FROM reviewsList r JOIN users u ON r.user_id = u.id WHERE r.book_id = $1",
       [bookId]
     );
 
-    // 3. Check if any reviews found
-    if (!reviews.rows.length) {
-      return res.json({
-        success: true,
-        message: "No reviews found for this book",
-        reviews: [],
-      });
-    }
-
-    // 4. Prepare an array to store user information
-    const userInfos = [];
-
-    // 5. Loop through each review and fetch user details (separate query)
-    for (const review of reviews.rows) {
-      const userInfo = await db.query(
-        "SELECT username FROM users WHERE id = $1",
-        [review.user_id]
-      );
-      userInfos.push(userInfo.rows[0]); // Assuming only one user per ID
-      console.log(userInfo.rows[0], "is the user info");
-    }
-
-    // 6. Combine review and user data
-    const combinedReviews = reviews.rows.map((review, index) => {
-      return { ...review, ...userInfos[index] };
-    });
-
-    // 7. Send successful response with combined data
     res.json({
       success: true,
       message: "Reviews retrieved successfully",
-      reviews: combinedReviews,
+      reviews: reviewsResult.rows,
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ success: false, message: "Internal server error" });
+    console.error("Error retrieving reviews:", error);
+    res.status(500).json({ success: false, message: "Internal server error." });
   }
 });
 
-app.post("/logout", (req, res) => {
-  // Clear the session
-  req.session.destroy((err) => {
-    if (err) {
-      console.error("Error during logout:", err);
-      res.status(500).send("Internal Server Error");
-    } else {
-      res.clearCookie("connect.sid"); // Clear the session cookie
-      res.status(200).send("Logout successful");
-    }
-  });
-});
-
+// === Profile Update (PostgreSQL - as per your original code) ===
 app.put("/update-profile", async (req, res) => {
-  // get user id
-  const userId = req.session.userId;
+  const userId = req.session?.user?.id; // Safely get userId from session
+
+  if (!userId) {
+    return res.status(401).json({ success: false, message: "Unauthorized: User not logged in to update profile." });
+  }
+
   const { username, password } = req.body;
+
+  if (!username || !password) {
+    return res.status(400).json({ success: false, message: "Username and password are required for profile update." });
+  }
+
   try {
     const hashedPassword = await bcrypt.hash(password, saltRounds);
-    // Update the user's profile
-    await db.query(
-      "UPDATE users SET username = $1 , password = $2  WHERE id = $3",
+
+    // Update the user's profile in PostgreSQL
+    const updateResult = await db.query(
+      "UPDATE users SET username = $1, password = $2 WHERE id = $3 RETURNING id, username", // RETURNING to get updated data
       [username, hashedPassword, userId]
     );
 
-    req.session.username = username;
-    // console.log(username,"username")
-    req.session.password = password;
-    console.log("username", username);
+    if (updateResult.rows.length === 0) {
+      return res.status(404).json({ success: false, message: "User not found for update." });
+    }
+
+    // Update the session user with new data
+    request.session.user = updateResult.rows[0];
+    request.session.save((err) => {
+      if (err) {
+        console.error("Session save error after profile update:", err);
+        return res.status(500).json({ success: false, message: "Profile updated, but session could not be saved." });
+      }
+      res.json({ success: true, message: "Profile updated successfully", user: request.session.user });
+    });
+
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ success: false, message: "Internal server error" });
+    console.error("Error updating profile:", error);
+    res.status(500).json({ success: false, message: "Internal server error." });
   }
 });
 
-// const PORT = 3001;
+
+// Start the server
 app.listen(port, () => {
   console.log(`Server started on port ${port}`);
 });
