@@ -43,9 +43,13 @@ function LoginForm() {
   };
 
   useEffect(() => {
-    Axios.get(`${API_BASE_URL}/login`).then((response) => {
-      console.log(response);
-    });
+    Axios.get(`${API_BASE_URL}/login`, { withCredentials: true })
+      .then((response) => {
+        console.log("Session check:", response.data);
+      })
+      .catch((error) => {
+        console.error("Session check failed:", error);
+      });
   }, []);
 
   return (
