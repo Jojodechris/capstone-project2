@@ -71,35 +71,7 @@ app.use(
     },
   })
 );
-app.post("/signup", async (request, response) => {
-  const { username, password } = request.body;
-  console.log("Username:", username); // Log username separately
 
-  try {
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
-
-    const { data, error } = await supabase
-      .from("users")
-      .insert([{ username:username, password: hashedPassword }])
-      .select()
-      .single();
-    console.log("ERROR", error);
-    console.error("error", error);
-    if (data) {
-      // Check if data exists
-      console.log(data);
-      request.session.user = data; // Assign the session
-      response.json({ success: true, message: "User signed up successfully" });
-    } else {
-      // Handle potential insertion errors
-      response.status(400).json({ success: false, message: error });
-    }
-  } catch (error) {
-    response
-      .status(500)
-      .json({ success: false, message: "Internal server error" });
-  }
-});
 
 // if (error) {
 //   // Check for specific errors (e.g., username conflict)
@@ -109,6 +81,47 @@ app.post("/signup", async (request, response) => {
 //     throw error; // Re-throw other errors for generic handling
 //   }
 // }
+app.post("/signup", async (request, response) => {
+  const { username, password } = request.body;
+
+  try {
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+    const { data, error } = await supabase
+      .from("users")
+      .insert([{ username, password: hashedPassword }])
+      .select();
+
+    if (error || !data || data.length === 0) {
+      return response.status(400).json({
+        success: false,
+        message: "Signup failed. Username may already exist.",
+      });
+    }
+
+    const user = data[0];
+    request.session.user = { id: user.id, username: user.username };
+
+    request.session.save((err) => {
+      if (err) {
+        console.error("Session save error:", err);
+        return response.status(500).json({
+          success: false,
+          message: "Signup successful, but session could not be saved.",
+        });
+      }
+
+      response.json({
+        success: true,
+        message: "User registered and logged in successfully.",
+        user: request.session.user,
+      });
+    });
+  } catch (error) {
+    console.error("Signup error:", error);
+    response.status(500).json({ success: false, message: "Server error during signup." });
+  }
+});
 
 //     request.session.user = request.body.username;
 //     response.json({ success: true, message: "User signed up successfully" });
@@ -150,7 +163,7 @@ app.post("/signup", async (request, response) => {
 // });
 
 app.get("/login", (request, response) => {
-  if (!request.session.user) {
+  if (request.session.user) {
     response.send({ loggedIn: true, user: request.session.user });
   } else {
     response.send({ loggedIn: false });
@@ -177,41 +190,53 @@ app.get("/isUserLoggedIn", (request, response) => {
 
 app.post("/login", async (request, response) => {
   const { username, password } = request.body;
-  console.log("Username:", username);
 
   try {
     const { data, error } = await supabase
       .from("users")
-      .select()
-      .eq("username", username)
-      .single(); // Expecting only one user
+      .select("*")
+      .eq("username", username);
 
-    if (error) {
-      response.status(400).json({ success: false, message: "User not found" });
-      return;
+    if (error || !data || data.length === 0) {
+      return response.status(401).json({
+        success: false,
+        message: "Invalid username or password.",
+      });
     }
 
-    const user = data;
-
+    const user = data[0];
     const passwordMatch = await bcrypt.compare(password, user.password);
 
-    if (passwordMatch) {
-      request.session.user = data;
-      console.log("data", data);
-      console.log("userlogin", request.session.user);
-      request.session.save();
-      response.json({ success: true, message: "Login successful" });
-    } else {
-      response
-        .status(401)
-        .json({ success: false, message: "Invalid credentials" });
+    if (!passwordMatch) {
+      return response.status(401).json({
+        success: false,
+        message: "Invalid username or password.",
+      });
     }
+
+    request.session.user = { id: user.id, username: user.username };
+
+    request.session.save((err) => {
+      if (err) {
+        console.error("Session save error:", err);
+        return response.status(500).json({
+          success: false,
+          message: "Login successful, but session could not be saved.",
+        });
+      }
+
+      response.json({
+        success: true,
+        message: "Login successful.",
+        user: request.session.user,
+      });
+    });
   } catch (error) {
-    response
-      .status(500)
-      .json({ success: false, message: "Internal server error" });
+    console.error("Login error:", error);
+    response.status(500).json({ success: false, message: "Server error during login." });
   }
 });
+
 
 // app.post("/login", async (request, response) => {
 //   const { username, password } = request.body;
