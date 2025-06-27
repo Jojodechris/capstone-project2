@@ -20,7 +20,7 @@ const supabase = require("./supabaseClient");
 // Load environment variables
 require("dotenv").config();
 
-const port = process.env.PORT || 3001;
+const port = "https://capstone-project2-pt29.onrender.com";
 const isProduction = process.env.NODE_ENV === "production";
 
 // PostgreSQL configuration
