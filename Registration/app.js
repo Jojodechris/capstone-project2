@@ -18,9 +18,9 @@ const supabase = require("./supabaseClient");
 // redisClient.connect().catch(console.error);
 
 // Load environment variables
-require("dotenv").config();
+// require("dotenv").config();
 
-const port = "https://capstone-project2-pt29.onrender.com";
+const port = process.env.PORT || 3001;
 const isProduction = process.env.NODE_ENV === "production";
 
 // PostgreSQL configuration
