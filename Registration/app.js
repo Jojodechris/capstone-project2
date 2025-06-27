@@ -1,39 +1,29 @@
 // app.js
 const express = require("express");
 const app = express();
-
 const cors = require("cors");
 const { Pool } = require("pg");
 const bcrypt = require("bcrypt");
 const saltRounds = 10;
 
-function removeDuplicates(arr) {
-  return Array.from(new Set(arr));
-}
-
-// parse body
-const bodyparser = require("body-parser");
-// cookie body
+// Utilities
 const cookieParser = require("cookie-parser");
-// create session to keep user log in
 const session = require("express-session");
-const nodemon = require("nodemon");
 const supabase = require("./supabaseClient");
 
-// const RedisStore = require('connect-redis')(session);
-// const { createClient } = require('redis');
-
-// // Redis client configuration (using v4 syntax)
-// let redisClient = createClient({
-//   url: process.env.REDIS_URL,
-//   legacyMode: true  // Needed for compatibility with `connect-redis`
-// });
-
+// Optional: Redis for production session storage
+// const RedisStore = require("connect-redis")(session);
+// const { createClient } = require("redis");
+// let redisClient = createClient({ url: process.env.REDIS_URL, legacyMode: true });
 // redisClient.connect().catch(console.error);
 
-const port = process.env.PORT || 3001;
+// Load environment variables
+require("dotenv").config();
 
-// Database configuration
+const port = process.env.PORT || 3001;
+const isProduction = process.env.NODE_ENV === "production";
+
+// PostgreSQL configuration
 const db = new Pool({
   user: process.env.DATABASE_USER,
   password: process.env.DATABASE_PASSWORD,
@@ -42,51 +32,45 @@ const db = new Pool({
   database: process.env.DATABASE_NAME,
 });
 
-const isProduction = process.env.NODE_ENV === "development";
+// Trust proxy when behind a proxy (e.g., on Render)
+if (isProduction) {
+  app.set("trust proxy", 1);
+}
 
-app.use(bodyparser.json());
-app.use(express.json()); 
+// Middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
+
 app.use(
   cors({
-    AccessControlAllowOrigin: [
-      "http://localhost:3000",
-      "http://localhost:3001",
-      "https://capstone-project2-pt29.onrender.com/",
-      "https://front-end-4ytj.onrender.com",
+    origin: [
+      "http://localhost:3000", // ✅ Dev frontend
+      "http://localhost:3001", // ✅ Dev backend
+      "https://capstone-project2-pt29.onrender.com", // ✅ Production frontend
+      "https://front-end-4ytj.onrender.com",         // ✅ Production frontend (if different)
     ],
-    // origin:"https://front-end-4ytj.onrender.com",
-    origin: "http://localhost:3000",
-    methods: ("GET", "POST", "PUT", "DELETE"),
+    methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   })
 );
 
-app.use(cookieParser());
-app.use(bodyparser.urlencoded({ extended: true }));
-app.use(bodyparser());
-app.set('trust proxy', true)
 app.use(
   session({
+    // Production: use Redis
     // store: new RedisStore({ client: redisClient }),
     key: "user",
-    secret: "secret",
+    secret: process.env.SESSION_SECRET || "defaultSecret",
     resave: true,
-    // what works loacally
-    // saveUninitialized: true,
-    // secure:false,
-    saveUninitialized: true,
+    saveUninitialized: false,
     cookie: {
-      // secure:true,
-      secure: false, // Ensure cookies are only sent over HTTPS in production
-      // sameSite: "none", // Prevents CSRF attacks; use 'strict' in production
-      // or lax
-      // httpOnly: true, // Helps prevent XSS attacks by not allowing client-side JavaScript to access the cookie
-      // secure: true,
-      expires: 1000 * 60 * 60 * 24,
+      secure: isProduction, // true in production (HTTPS)
+      httpOnly: true,
+      sameSite: isProduction ? "none" : "lax",
+      expires: 1000 * 60 * 60 * 24, // 1 day
     },
   })
 );
-
 app.post("/signup", async (request, response) => {
   const { username, password } = request.body;
   console.log("Username:", username); // Log username separately
