@@ -8,7 +8,7 @@ const saltRounds = 10;
 
 // Utilities
 const cookieParser = require("cookie-parser");
-const session = require("express-session");
+const session = require('cookie-session');
 const supabase = require("./supabaseClient");
 
 // Optional: Redis for production session storage
