@@ -67,7 +67,7 @@ app.use(
       secure: isProduction, // true in production (HTTPS)
       httpOnly: true,
       sameSite: isProduction ? "none" : "lax",
-      expires: 1000 * 60 * 60 * 24, // 1 day
+      maxAge: 1000 * 60 * 60 * 24, 
     },
   })
 );
